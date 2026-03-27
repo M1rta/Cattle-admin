@@ -1,5 +1,5 @@
 {
   "scripts": {
-    "one": "python backend\\app.py"
+    "dev": "python api/app.py"
   }
 }
