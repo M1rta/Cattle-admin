@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -8,33 +9,22 @@
   <!-- CSS generado desde login.scss -->
   <link rel="stylesheet" href="/static/css/login.css" />
 </head>
+
 <body>
 
   <main class="login-container">
     <section class="login-card">
       <h1 class="login-title">Iniciar sesión</h1>
       <p class="login-subtitle">Accede a tu cuenta para ver tu ganado y vacunas</p>
-      
+
       <!-- IMPORTANTE: type="button" en el botón para evitar recargas por submit -->
       <form id="login-form" autocomplete="on">
         <div class="input-group">
-          <input
-            type="email"
-            id="login-email"
-            placeholder="Correo"
-            aria-label="Correo"
-            required
-          />
+          <input type="email" id="login-email" placeholder="Correo" aria-label="Correo" required />
         </div>
 
         <div class="input-group">
-          <input
-            type="password"
-            id="login-password"
-            placeholder="Contraseña"
-            aria-label="Contraseña"
-            required
-          />
+          <input type="password" id="login-password" placeholder="Contraseña" aria-label="Contraseña" required />
         </div>
 
         <button type="button" class="login-btn" id="btn-login">Entrar</button>
@@ -46,6 +36,7 @@
     </section>
   </main>
 
-  <script src="../js/login.js"></script>
+  <script src="/static/js/login"></script>
 </body>
+
 </html>
