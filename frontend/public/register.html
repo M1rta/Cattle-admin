@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Registro | Gestor de Ganado</title>
+
+  <!-- ✅ IMPORTANTE: el navegador NO lee .scss, tiene que ser .css compilado -->
+  <link rel="stylesheet" href="../css/register.css" />
+</head>
+<body>
+
+  <main class="register-container">
+    <section class="register-card">
+      <h1 class="register-title">Crear cuenta</h1>
+      <p class="register-subtitle">Regístrate para empezar a administrar tu ganado</p>
+
+      <form id="register-form" autocomplete="on">
+        <div class="input-group">
+          <input
+            type="text"
+            id="register-name"
+            placeholder="Nombre"
+            aria-label="Nombre"
+            required
+          />
+        </div>
+
+        <div class="input-group">
+          <input
+            type="email"
+            id="register-email"
+            placeholder="Correo"
+            aria-label="Correo"
+            required
+          />
+        </div>
+
+        <div class="input-group">
+          <input
+            type="password"
+            id="register-password"
+            placeholder="Contraseña"
+            aria-label="Contraseña"
+            required
+          />
+        </div>
+
+        <div class="input-group">
+          <input
+            type="password"
+            id="register-password2"
+            placeholder="Confirmar contraseña"
+            aria-label="Confirmar contraseña"
+            required
+          />
+        </div>
+
+        <!-- ✅ type="submit" para que Enter funcione -->
+        <button type="submit" class="register-btn" id="btn-register">Crear cuenta</button>
+
+        <div class="register-link">
+          ¿Ya tienes cuenta? <a href="login.html">Iniciar sesión</a>
+        </div>
+      </form>
+    </section>
+  </main>
+
+  <script src="../js/register.js"></script>
+</body>
+</html>

@@ -1,0 +1,24 @@
+# Entorno virtual
+backend/venv/
+
+# Variables sensibles
+.env
+frontend/.env
+backend/.env
+
+# Python
+__pycache__/
+*.pyc
+
+# Base de datos local
+*.db
+
+# Node
+node_modules/
+
+# VS Code
+.vscode/
+
+# Archivos del sistema
+.DS_Store
+Thumbs.db
