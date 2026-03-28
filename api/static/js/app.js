@@ -9,7 +9,6 @@ if (!token) window.location.href = "/login";
 /* =========================
    API CONFIGURADA PARA VERCEL/LOCAL
    ========================= */
-// Esto detecta si estás en localhost o en la URL de Vercel automáticamente
 const API = window.location.origin + "/api";
 
 function headersAuth(extraHeaders = {}) {
@@ -96,7 +95,7 @@ function mostrarEnMapa(ganado) {
   (ganado || []).forEach((vaca) => {
     if (!vaca.lat || !vaca.lng) return;
     const marker = L.marker([vaca.lat, vaca.lng]).addTo(map);
-    // IMPORTANTE: Aquí se usa vaca._id para MongoDB
+    // Tu Python devuelve 'id', así que usamos vaca.id
     marker.bindPopup(`
       <b>${vaca.nombre}</b><br>
       Tipo: ${vaca.tipo || "N/A"}<br>
@@ -122,69 +121,80 @@ function cargarGanado() {
   apiFetch(`${API}/ganado`)
     .then((res) => res.json())
     .then((data) => {
-      window.ganadoGlobal = data || [];
+      // Tu Python devuelve una lista directamente o un objeto con la lista
+      window.ganadoGlobal = Array.isArray(data) ? data : data.ganado || [];
       mostrarEnMapa(window.ganadoGlobal);
       actualizarContadoresPanel();
     })
     .catch(err => console.error("Error cargando ganado:", err));
 }
 
-/* ====== AGREGAR GANADO (CORREGIDO) ====== */
+/* ====== AGREGAR GANADO (Ajustado a ganado_service.py) ====== */
 function agregarGanado() {
   const finca = (document.getElementById("finca").value || "").toUpperCase();
   const tipo = document.getElementById("tipo").value;
-  const criaValue = document.getElementById("cria").value;
+  const nombre = document.getElementById("nombre").value;
+  const color = document.getElementById("color").value;
   const edad = document.getElementById("edad").value;
+  const criaValue = document.getElementById("cria").value;
 
   const punto = obtenerPuntoLibre(finca, window.ganadoGlobal || []);
-  if (!punto) return alert("Esa finca no tiene puntos definidos");
 
   const data = {
-    nombre: document.getElementById("nombre").value,
+    nombre: nombre,
     tipo: tipo,
-    color: document.getElementById("color").value,
-    edad: parseInt(edad) || 0,
+    color: color,
+    edad: parseInt(edad), // Tu backend usa int(edad)
     tiene_cria: tipo.toLowerCase() === "vaca" ? parseInt(criaValue || 0) : 0,
     finca_actual: finca,
-    lat: punto.lat,
-    lng: punto.lng
+    lat: punto ? punto.lat : null,
+    lng: punto ? punto.lng : null
   };
 
-  if (!data.nombre || !data.tipo || !data.color || !data.finca_actual) {
-    return alert("Completa todos los campos obligatorios");
+  // Validaciones para evitar el Error 400 de tu Python
+  if (!data.nombre || !data.tipo || !data.color || isNaN(data.edad) || !data.finca_actual) {
+    return alert("Faltan campos obligatorios");
   }
 
   apiFetch(`${API}/ganado`, {
     method: "POST",
     body: JSON.stringify(data)
   })
-  .then(res => {
-      if(!res.ok) throw new Error("Error al guardar");
-      return res.json();
+  .then(async (res) => {
+      const resData = await res.json();
+      if(!res.ok) throw new Error(resData.error || "Error al guardar");
+      return resData;
   })
-  .then(() => {
+  .then((resData) => {
     limpiarFormulario();
     cargarGanado();
-    alert("Animal registrado con éxito");
+    alert(resData.message || "Ganado guardado correctamente");
   })
   .catch(err => alert("Error: " + err.message));
 }
 
 function limpiarFormulario() {
-  ["nombre", "edad"].forEach((id) => (document.getElementById(id).value = ""));
-  ["tipo", "color", "cria", "finca"].forEach((id) => (document.getElementById(id).value = ""));
+  ["nombre", "edad", "color", "cria"].forEach((id) => {
+      const el = document.getElementById(id);
+      if(el) el.value = "";
+  });
   toggleCampoCria();
 }
 
-/* ====== ELIMINAR (CORREGIDO ID) ====== */
+/* ====== ELIMINAR (Ajustado a g.id) ====== */
 function eliminarGanado(id) {
   if(!confirm("¿Seguro que quieres eliminar este animal?")) return;
   apiFetch(`${API}/ganado/${id}`, { method: "DELETE" })
-    .then(() => cargarGanado())
-    .catch(err => console.error(err));
+    .then(async (res) => {
+        const resData = await res.json();
+        if(!res.ok) throw new Error(resData.error || "No se pudo eliminar");
+        alert(resData.message || "Eliminado");
+        cargarGanado();
+    })
+    .catch(err => alert(err.message));
 }
 
-/* ====== MODAL EDITAR (CORREGIDO ID) ====== */
+/* ====== MODAL EDITAR ====== */
 function abrirModal(vaca) {
   vacaEditando = vaca;
   document.getElementById("edit-nombre").value = vaca.nombre || "";
@@ -204,7 +214,7 @@ function cerrarModal() {
 
 function actualizarVaca() {
   if (!vacaEditando) return;
-  const id = vacaEditando._id || vacaEditando.id; // Soporta ambos por si acaso
+  const id = vacaEditando.id; // Tu Python envía 'id'
   
   const data = {
     nombre: document.getElementById("edit-nombre").value,
@@ -212,16 +222,21 @@ function actualizarVaca() {
     color: document.getElementById("edit-color").value,
     edad: parseInt(document.getElementById("edit-edad").value) || 0,
     tiene_cria: parseInt(document.getElementById("edit-cria").value) || 0,
-    finca_actual: document.getElementById("edit-finca").value
+    finca_actual: document.getElementById("edit-finca").value.toUpperCase()
   };
 
   apiFetch(`${API}/ganado/${id}`, {
     method: "PUT",
     body: JSON.stringify(data)
-  }).then(() => {
-    cerrarModal();
-    cargarGanado();
-  });
+  })
+  .then(async (res) => {
+      const resData = await res.json();
+      if(!res.ok) throw new Error(resData.error || "Error al actualizar");
+      alert(resData.message || "Actualizado correctamente");
+      cerrarModal();
+      cargarGanado();
+  })
+  .catch(err => alert(err.message));
 }
 
 /* ====== PANEL LATERAL ====== */
@@ -243,10 +258,9 @@ function volverResumen() {
 
 function actualizarContadoresPanel() {
   const data = window.ganadoGlobal || [];
-  document.getElementById("count-total").innerText = data.length;
-  document.getElementById("count-vacas").innerText = data.filter(x => x.tipo === "Vaca").length;
-  document.getElementById("count-toros").innerText = data.filter(x => x.tipo === "Toro").length;
-  // ... resto de contadores igual
+  const totalEl = document.getElementById("count-total");
+  if(totalEl) totalEl.innerText = data.length;
+  // Puedes agregar más contadores aquí filtrando data
 }
 
 function abrirListaGanado() {
@@ -257,16 +271,16 @@ function abrirListaGanado() {
 
 function renderListaPanel(items) {
   const cont = document.getElementById("lista-panel-ganado");
+  if(!cont) return;
   cont.innerHTML = "";
   items.forEach((g) => {
-    const id = g._id || g.id; // Uso de _id para MongoDB
     const div = document.createElement("div");
     div.className = "item-animal";
     div.innerHTML = `
       <b>${g.nombre}</b><br>
-      <span style="font-size:12px;">Finca: ${g.finca_actual}</span>
+      <span style="font-size:12px;">Finca: ${g.finca_actual} | Tipo: ${g.tipo}</span>
       <div class="item-row">
-        <button type="button" class="btn-delete" onclick="eliminarGanado('${id}')">Eliminar</button>
+        <button type="button" class="btn-delete" onclick="eliminarGanado('${g.id}')">Eliminar</button>
       </div>
     `;
     cont.appendChild(div);
@@ -283,9 +297,10 @@ function abrirVacunas() {
 
 function llenarSelectAnimalesVacunas() {
   const sel = document.getElementById("vac-animal");
+  if(!sel) return;
   sel.innerHTML = `<option value="">Seleccione un animal</option>`;
   (window.ganadoGlobal || []).forEach((g) => {
-    sel.innerHTML += `<option value="${g._id || g.id}">${g.nombre}</option>`;
+    sel.innerHTML += `<option value="${g.id}">${g.nombre}</option>`;
   });
 }
 
@@ -294,8 +309,9 @@ function cargarCatalogoVacunas() {
     .then(res => res.json())
     .then(vacs => {
       const sel = document.getElementById("vac-select");
+      if(!sel) return;
       sel.innerHTML = `<option value="">Seleccione vacuna</option>`;
-      vacs.forEach(v => sel.innerHTML += `<option value="${v._id || v.id}">${v.nombre}</option>`);
+      vacs.forEach(v => sel.innerHTML += `<option value="${v.id}">${v.nombre}</option>`);
     });
 }
 
@@ -307,14 +323,16 @@ async function asignarVacuna() {
   if (!animalId || !vacunaId) return alert("Selecciona animal y vacuna");
 
   try {
-    await apiFetch(`${API}/ganado/${animalId}/vacunas`, {
+    const res = await apiFetch(`${API}/ganado/${animalId}/vacunas`, {
       method: "POST",
       body: JSON.stringify({ vacuna_ids: [vacunaId], fecha })
     });
-    alert("Vacuna asignada");
+    const resData = await res.json();
+    if(!res.ok) throw new Error(resData.error || "Error");
+    alert(resData.message || "Vacuna asignada");
     document.getElementById("vac-select").value = "";
   } catch (err) {
-    alert("Error al asignar vacuna");
+    alert(err.message);
   }
 }
 
