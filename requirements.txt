@@ -7,3 +7,5 @@ itsdangerous==2.2.0
 Jinja2==3.1.6
 MarkupSafe==3.0.3
 Werkzeug==3.1.5
+pymongo==4.10.1
+dnspython==2.7.0

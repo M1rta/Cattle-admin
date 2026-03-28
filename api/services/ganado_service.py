@@ -1,127 +1,101 @@
-from db.connection import get_connection
+from db.connection import get_db
+from bson.objectid import ObjectId
+from datetime import datetime
 
 # -------------------------
 # GANADO (DB)
 # -------------------------
-def crear_ganado(user_id: int, data: dict):
+def crear_ganado(user_id, data: dict):
     nombre = (data.get("nombre") or "").strip()
     color = (data.get("color") or "").strip()
     edad = data.get("edad", None)
     finca_actual = (data.get("finca_actual") or "").strip().upper()
     tipo = (data.get("tipo") or "").strip()
-    madre_id = data.get("madre_id", None)
-    lat = data.get("lat", None)
-    lng = data.get("lng", None)
 
     if not nombre or not color or edad is None or not finca_actual or not tipo:
         return {"error": "Faltan campos obligatorios"}, 400
 
-    conn = get_connection()
-    cursor = conn.cursor()
+    db = get_db()
+    
+    nuevo_animal = {
+        "nombre": nombre,
+        "color": color,
+        "edad": int(edad),
+        "sexo": "", 
+        "tiene_cria": int(data.get("tiene_cria", 0)),
+        "finca_actual": finca_actual,
+        "lat": float(data.get("lat")) if data.get("lat") is not None else None,
+        "lng": float(data.get("lng")) if data.get("lng") is not None else None,
+        "tipo": tipo,
+        "madre_id": data.get("madre_id"), # En Mongo puede ser string o None
+        "user_id": user_id,
+        "fecha_creacion": datetime.utcnow()
+    }
 
-    cursor.execute("""
-        INSERT INTO ganado (nombre, color, edad, sexo, tiene_cria, finca_actual, lat, lng, tipo, madre_id, user_id)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-    """, (
-        nombre,
-        color,
-        int(edad),
-        "",  # sexo (ya no lo usas)
-        int(data.get("tiene_cria", 0)),
-        finca_actual,
-        float(lat) if lat is not None else None,
-        float(lng) if lng is not None else None,
-        tipo,
-        int(madre_id) if madre_id else None,
-        user_id
-    ))
-
-    conn.commit()
-    conn.close()
-    return {"message": "Ganado guardado"}, 201
+    db.ganado.insert_one(nuevo_animal)
+    return {"message": "Ganado guardado correctamente en la nube"}, 201
 
 
-def listar_ganado(user_id: int):
-    conn = get_connection()
-    cursor = conn.cursor()
-    cursor.execute("SELECT * FROM ganado WHERE user_id = ? ORDER BY id DESC", (user_id,))
-    rows = cursor.fetchall()
-    conn.close()
-    return [dict(r) for r in rows], 200
+def listar_ganado(user_id):
+    db = get_db()
+    # Buscamos solo los que pertenecen a este usuario
+    rows = list(db.ganado.find({"user_id": user_id}).sort("_id", -1))
+    
+    for r in rows:
+        r["id"] = str(r["_id"]) # Renombramos _id a id para el frontend
+        del r["_id"]
+        
+    return rows, 200
 
 
-def actualizar_ganado_db(user_id: int, ganado_id: int, data: dict):
-    conn = get_connection()
-    cursor = conn.cursor()
+def actualizar_ganado_db(user_id, ganado_id, data: dict):
+    db = get_db()
+    
+    update_data = {
+        "nombre": data.get("nombre"),
+        "color": data.get("color"),
+        "edad": int(data.get("edad")) if data.get("edad") is not None else None,
+        "tiene_cria": int(data.get("tiene_cria", 0)),
+        "finca_actual": (data.get("finca_actual") or "").upper(),
+        "lat": float(data.get("lat")) if data.get("lat") is not None else None,
+        "lng": float(data.get("lng")) if data.get("lng") is not None else None,
+        "tipo": data.get("tipo", ""),
+        "madre_id": data.get("madre_id")
+    }
 
-    cursor.execute("""
-        UPDATE ganado
-        SET nombre = ?,
-            color = ?,
-            edad = ?,
-            tiene_cria = ?,
-            finca_actual = ?,
-            lat = ?,
-            lng = ?,
-            tipo = ?,
-            madre_id = ?
-        WHERE id = ? AND user_id = ?
-    """, (
-        data.get("nombre"),
-        data.get("color"),
-        int(data.get("edad")) if data.get("edad") is not None else None,
-        int(data.get("tiene_cria", 0)),
-        (data.get("finca_actual") or "").upper(),
-        float(data.get("lat")) if data.get("lat") is not None else None,
-        float(data.get("lng")) if data.get("lng") is not None else None,
-        data.get("tipo", ""),
-        int(data.get("madre_id")) if data.get("madre_id") else None,
-        ganado_id,
-        user_id
-    ))
+    result = db.ganado.update_one(
+        {"_id": ObjectId(ganado_id), "user_id": user_id},
+        {"$set": update_data}
+    )
 
-    conn.commit()
-    changed = cursor.rowcount
-    conn.close()
-
-    if changed == 0:
+    if result.matched_count == 0:
         return {"error": "No existe o no te pertenece"}, 404
     return {"message": "Actualizado"}, 200
 
 
-def eliminar_ganado_db(user_id: int, ganado_id: int):
-    conn = get_connection()
-    cursor = conn.cursor()
+def eliminar_ganado_db(user_id, ganado_id):
+    db = get_db()
+    result = db.ganado.delete_one({"_id": ObjectId(ganado_id), "user_id": user_id})
 
-    cursor.execute("DELETE FROM ganado WHERE id = ? AND user_id = ?", (ganado_id, user_id))
-    conn.commit()
-    deleted = cursor.rowcount
-    conn.close()
-
-    if deleted == 0:
+    if result.deleted_count == 0:
         return {"error": "No existe o no te pertenece"}, 404
     return {"message": "Eliminado"}, 200
 
 
-def mover_ganado_db(user_id: int, ganado_id: int, data: dict):
+def mover_ganado_db(user_id, ganado_id, data: dict):
+    db = get_db()
     finca = (data.get("finca_actual") or "").upper()
-    lat = data.get("lat")
-    lng = data.get("lng")
+    
+    result = db.ganado.update_one(
+        {"_id": ObjectId(ganado_id), "user_id": user_id},
+        {"$set": {
+            "finca_actual": finca, 
+            "lat": float(data.get("lat")), 
+            "lng": float(data.get("lng"))
+        }}
+    )
 
-    conn = get_connection()
-    cursor = conn.cursor()
-
-    cursor.execute("""
-        UPDATE ganado
-        SET finca_actual = ?, lat = ?, lng = ?
-        WHERE id = ? AND user_id = ?
-    """, (finca, float(lat), float(lng), ganado_id, user_id))
-
-    conn.commit()
-    changed = cursor.rowcount
-    conn.close()
-
-    if changed == 0:
+    if result.matched_count == 0:
         return {"error": "No existe o no te pertenece"}, 404
     return {"message": "Movido correctamente"}, 200
 
@@ -130,67 +104,65 @@ def mover_ganado_db(user_id: int, ganado_id: int, data: dict):
 # VACUNAS (CATALOGO GLOBAL)
 # -------------------------
 def listar_catalogo_vacunas():
-    conn = get_connection()
-    cursor = conn.cursor()
-    cursor.execute("SELECT id, nombre, descripcion FROM vacunas ORDER BY nombre")
-    rows = cursor.fetchall()
-    conn.close()
-    return [dict(r) for r in rows], 200
+    db = get_db()
+    # Si la colección está vacía, puedes insertar unas por defecto
+    rows = list(db.vacunas.find().sort("nombre", 1))
+    for r in rows:
+        r["id"] = str(r["_id"])
+        del r["_id"]
+    return rows, 200
 
 
 # -------------------------
 # VACUNAS POR ANIMAL (DB)
 # -------------------------
-def animal_pertenece_a_usuario(user_id: int, ganado_id: int) -> bool:
-    conn = get_connection()
-    cursor = conn.cursor()
-    cursor.execute("SELECT id FROM ganado WHERE id = ? AND user_id = ?", (ganado_id, user_id))
-    ok = cursor.fetchone() is not None
-    conn.close()
-    return ok
+def animal_pertenece_a_usuario(user_id, ganado_id) -> bool:
+    db = get_db()
+    try:
+        ok = db.ganado.find_one({"_id": ObjectId(ganado_id), "user_id": user_id})
+        return ok is not None
+    except:
+        return False
 
 
-def vacunas_de_animal_db(user_id: int, ganado_id: int):
-    conn = get_connection()
-    cursor = conn.cursor()
+def vacunas_de_animal_db(user_id, ganado_id):
+    db = get_db()
+    # Buscamos las vacunas aplicadas a este animal
+    rows = list(db.ganado_vacunas.find({"ganado_id": ganado_id, "user_id": user_id}))
+    
+    for r in rows:
+        r["asignacion_id"] = str(r["_id"])
+        # Buscamos el nombre de la vacuna para simular el JOIN
+        vacuna_info = db.vacunas.find_one({"_id": ObjectId(r["vacuna_id"])})
+        if vacuna_info:
+            r["nombre"] = vacuna_info["nombre"]
+            r["descripcion"] = vacuna_info.get("descripcion", "")
+        del r["_id"]
+        
+    return rows, 200
 
-    cursor.execute("""
-        SELECT gv.id as asignacion_id, v.id as vacuna_id, v.nombre, v.descripcion, gv.fecha, gv.notas
-        FROM ganado_vacunas gv
-        JOIN vacunas v ON v.id = gv.vacuna_id
-        WHERE gv.ganado_id = ? AND gv.user_id = ?
-        ORDER BY gv.fecha DESC, v.nombre ASC
-    """, (ganado_id, user_id))
 
-    rows = cursor.fetchall()
-    conn.close()
-    return [dict(r) for r in rows], 200
-
-
-def asignar_vacunas_db(user_id: int, ganado_id: int, data: dict):
+def asignar_vacunas_db(user_id, ganado_id, data: dict):
     vacuna_ids = data.get("vacuna_ids", [])
-    fecha = data.get("fecha")  # "YYYY-MM-DD" opcional
+    fecha = data.get("fecha") or datetime.now().strftime("%Y-%m-%d")
     notas = data.get("notas", "")
 
     if not isinstance(vacuna_ids, list) or len(vacuna_ids) == 0:
-        return {"error": "vacuna_ids debe ser una lista con al menos 1 id"}, 400
+        return {"error": "vacuna_ids debe ser una lista"}, 400
 
-    conn = get_connection()
-    cursor = conn.cursor()
-
+    db = get_db()
+    nuevas_vacunas = []
+    
     for vid in vacuna_ids:
-        if fecha:
-            cursor.execute("""
-                INSERT INTO ganado_vacunas (ganado_id, vacuna_id, fecha, notas, user_id)
-                VALUES (?, ?, ?, ?, ?)
-            """, (ganado_id, int(vid), fecha, notas, user_id))
-        else:
-            cursor.execute("""
-                INSERT INTO ganado_vacunas (ganado_id, vacuna_id, notas, user_id)
-                VALUES (?, ?, ?, ?)
-            """, (ganado_id, int(vid), notas, user_id))
+        nuevas_vacunas.append({
+            "ganado_id": ganado_id,
+            "vacuna_id": vid, # ID de la vacuna
+            "fecha": fecha,
+            "notas": notas,
+            "user_id": user_id
+        })
 
-    conn.commit()
-    conn.close()
+    if nuevas_vacunas:
+        db.ganado_vacunas.insert_many(nuevas_vacunas)
 
     return {"message": "Vacunas asignadas"}, 201

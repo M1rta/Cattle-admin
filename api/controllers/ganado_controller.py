@@ -37,7 +37,7 @@ def ver_ganado_controller():
     return jsonify(rows), status
 
 
-def actualizar_ganado_controller(ganado_id: int):
+def actualizar_ganado_controller(ganado_id):
     user_id = get_user_id_from_auth()
     if not user_id:
         return jsonify({"error": "No autorizado"}), 401
@@ -47,7 +47,7 @@ def actualizar_ganado_controller(ganado_id: int):
     return jsonify(payload), status
 
 
-def eliminar_ganado_controller(ganado_id: int):
+def eliminar_ganado_controller(ganado_id):
     user_id = get_user_id_from_auth()
     if not user_id:
         return jsonify({"error": "No autorizado"}), 401
@@ -56,7 +56,7 @@ def eliminar_ganado_controller(ganado_id: int):
     return jsonify(payload), status
 
 
-def mover_ganado_controller(ganado_id: int):
+def mover_ganado_controller(ganado_id):
     user_id = get_user_id_from_auth()
     if not user_id:
         return jsonify({"error": "No autorizado"}), 401
@@ -77,7 +77,7 @@ def listar_vacunas_controller():
 # -------------------------
 # VACUNAS POR ANIMAL
 # -------------------------
-def vacunas_de_animal_controller(ganado_id: int):
+def vacunas_de_animal_controller(ganado_id):
     user_id = get_user_id_from_auth()
     if not user_id:
         return jsonify({"error": "No autorizado"}), 401
@@ -89,7 +89,7 @@ def vacunas_de_animal_controller(ganado_id: int):
     return jsonify(rows), status
 
 
-def asignar_vacunas_controller(ganado_id: int):
+def asignar_vacunas_controller(ganado_id):
     user_id = get_user_id_from_auth()
     if not user_id:
         return jsonify({"error": "No autorizado"}), 401

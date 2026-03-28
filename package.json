@@ -1,13 +1,54 @@
 {
   
     "version": "2",
-  "builds": [
-    { "src": "api/index.py", "use": "@vercel/python" }
-  ],
-  "routes": [
-    { "src": "/(.*)", "dest": "api/index.py" }
-  ],
-  "scripts": {
+  
+    "builds": [
+  
+      
+    {
+  
+      
+      
+    "src": "api/index.py",
+  
+      
+      
+    "use": "@vercel/python"
+  
+      
+    }
+  
+    ],
+  
+    "routes": [
+  
+      
+    {
+  
+      
+      
+    "src": "/(.*)",
+  
+      
+      
+    "dest": "api/index.py"
+  
+      
+    }
+  
+    ],
+  
+    "scripts": {
+  
+      
     "dev": "python api/index.py"
-  }
+  
+    },
+  
+    "dependencies": {
+  
+      
+    "mongodb": "^7.1.1"
+  
+    }
 }

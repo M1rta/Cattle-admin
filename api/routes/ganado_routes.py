@@ -28,15 +28,15 @@ def agregar_ganado():
 def ver_ganado():
     return ver_ganado_controller()
 
-@ganado_bp.route("/ganado/<int:id>", methods=["PUT"])
+@ganado_bp.route("/ganado/<id>", methods=["PUT"])
 def actualizar_ganado(id):
     return actualizar_ganado_controller(id)
 
-@ganado_bp.route("/ganado/<int:id>", methods=["DELETE"])
+@ganado_bp.route("/ganado/<id>", methods=["DELETE"])
 def eliminar_ganado(id):
     return eliminar_ganado_controller(id)
 
-@ganado_bp.route("/ganado/<int:id>/mover", methods=["PUT"])
+@ganado_bp.route("/ganado/<id>/mover", methods=["PUT"])
 def mover_ganado(id):
     return mover_ganado_controller(id)
 
@@ -50,10 +50,10 @@ def listar_vacunas():
 # -------------------------
 # VACUNAS POR ANIMAL
 # -------------------------
-@ganado_bp.route("/ganado/<int:ganado_id>/vacunas", methods=["GET"])
+@ganado_bp.route("/ganado/<ganado_id>/vacunas", methods=["GET"])
 def vacunas_de_animal(ganado_id):
     return vacunas_de_animal_controller(ganado_id)
 
-@ganado_bp.route("/ganado/<int:ganado_id>/vacunas", methods=["POST"])
+@ganado_bp.route("/ganado/<ganado_id>/vacunas", methods=["POST"])
 def asignar_vacunas(ganado_id):
     return asignar_vacunas_controller(ganado_id)
