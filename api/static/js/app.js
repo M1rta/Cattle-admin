@@ -4,7 +4,7 @@ let vacaEditando = null;
    AUTH (TOKEN)
    ========================= */
 const token = localStorage.getItem("token");
-if (!token) window.location.href = "login.html";
+if (!token) window.location.href = "/login";
 
 /* =========================
    API
@@ -642,5 +642,5 @@ function eliminarVacunaAsignada(ganadoId, asignacionId) {
 function logout() {
   localStorage.removeItem("token");
   localStorage.removeItem("user");
-  window.location.href = "login.html";
+  window.location.href = "/login";
 }

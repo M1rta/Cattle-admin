@@ -60,12 +60,12 @@
         <button type="submit" class="register-btn" id="btn-register">Crear cuenta</button>
 
         <div class="register-link">
-          ¿Ya tienes cuenta? <a href="login.html">Iniciar sesión</a>
+          ¿Ya tienes cuenta? <a href="/login">Iniciar sesión</a>
         </div>
       </form>
     </section>
   </main>
 
-  <script src="/static/js/register.js"></script>
+  <script src="{{ url_for('static', filename='js/register.js') }}"></script>
 </body>
 </html>

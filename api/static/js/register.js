@@ -42,7 +42,7 @@ document.getElementById("register-form").addEventListener("submit", async (e) =>
     }
 
     alert("✅ Cuenta creada. Revisa tu correo e inicia sesión.");
-    window.location.href = "login.html";
+    window.location.href = "/login";
   } catch (err) {
     console.error(err);
     alert("❌ Failed to fetch. Revisa que el backend esté corriendo en 127.0.0.1:5000");

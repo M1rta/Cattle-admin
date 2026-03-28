@@ -19,24 +19,26 @@
 
       <!-- IMPORTANTE: type="button" en el botón para evitar recargas por submit -->
       <form id="login-form" autocomplete="on">
+
         <div class="input-group">
-          <input type="email" id="login-email" placeholder="Correo" aria-label="Correo" required />
+          <input type="email" id="email" placeholder="Correo" required />
         </div>
 
         <div class="input-group">
-          <input type="password" id="login-password" placeholder="Contraseña" aria-label="Contraseña" required />
+          <input type="password" id="password" placeholder="Contraseña" required />
         </div>
 
-        <button type="button" class="login-btn" id="btn-login">Entrar</button>
+        <!-- IMPORTANTE -->
+        <button type="submit" class="login-btn">Entrar</button>
 
         <div class="login-link">
-          ¿No tienes cuenta? <a href="register.html">Crear cuenta</a>
+          ¿No tienes cuenta? <a href="/register">Crear cuenta</a>
         </div>
+
       </form>
     </section>
   </main>
-
-  <script src="/static/js/login"></script>
+  <script src="{{ url_for('static', filename='js/login.js') }}"></script>
 </body>
 
 </html>
