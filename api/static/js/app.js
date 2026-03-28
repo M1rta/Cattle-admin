@@ -92,10 +92,17 @@ let markers = [];
 function mostrarEnMapa(ganado) {
   markers.forEach((m) => map.removeLayer(m));
   markers = [];
-  (ganado || []).forEach((vaca) => {
+  
+  // Si tu Python devuelve un objeto, extraemos la lista
+  const lista = Array.isArray(ganado) ? ganado : (ganado.ganado || []);
+
+  lista.forEach((vaca) => {
+    // Si no hay lat o lng, no puede poner el signo de ubicación
     if (!vaca.lat || !vaca.lng) return;
+
     const marker = L.marker([vaca.lat, vaca.lng]).addTo(map);
-    // Tu Python devuelve 'id', así que usamos vaca.id
+    
+    // IMPORTANTE: Usamos vaca.id porque así lo definiste en ganado_service.py
     marker.bindPopup(`
       <b>${vaca.nombre}</b><br>
       Tipo: ${vaca.tipo || "N/A"}<br>
@@ -130,56 +137,7 @@ function cargarGanado() {
 }
 
 /* ====== AGREGAR GANADO (Ajustado a ganado_service.py) ====== */
-function agregarGanado() {
-  const finca = (document.getElementById("finca").value || "").toUpperCase();
-  const tipo = document.getElementById("tipo").value;
-  const nombre = document.getElementById("nombre").value;
-  const color = document.getElementById("color").value;
-  const edad = document.getElementById("edad").value;
-  const criaValue = document.getElementById("cria").value;
-
-  const punto = obtenerPuntoLibre(finca, window.ganadoGlobal || []);
-
-  const data = {
-    nombre: nombre,
-    tipo: tipo,
-    color: color,
-    edad: parseInt(edad), // Tu backend usa int(edad)
-    tiene_cria: tipo.toLowerCase() === "vaca" ? parseInt(criaValue || 0) : 0,
-    finca_actual: finca,
-    lat: punto ? punto.lat : null,
-    lng: punto ? punto.lng : null
-  };
-
-  // Validaciones para evitar el Error 400 de tu Python
-  if (!data.nombre || !data.tipo || !data.color || isNaN(data.edad) || !data.finca_actual) {
-    return alert("Faltan campos obligatorios");
-  }
-
-  apiFetch(`${API}/ganado`, {
-    method: "POST",
-    body: JSON.stringify(data)
-  })
-  .then(async (res) => {
-      const resData = await res.json();
-      if(!res.ok) throw new Error(resData.error || "Error al guardar");
-      return resData;
-  })
-  .then((resData) => {
-    limpiarFormulario();
-    cargarGanado();
-    alert(resData.message || "Ganado guardado correctamente");
-  })
-  .catch(err => alert("Error: " + err.message));
-}
-
-function limpiarFormulario() {
-  ["nombre", "edad", "color", "cria"].forEach((id) => {
-      const el = document.getElementById(id);
-      if(el) el.value = "";
-  });
-  toggleCampoCria();
-}
+agregarGanado
 
 /* ====== ELIMINAR (Ajustado a g.id) ====== */
 function eliminarGanado(id) {
