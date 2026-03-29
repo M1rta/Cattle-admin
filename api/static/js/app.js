@@ -61,6 +61,7 @@ function bindUI() {
         }
       } else {
         edadInput.min = "0";
+        edadInput.value = "0";
       }
     });
   }
