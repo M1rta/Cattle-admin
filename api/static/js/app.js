@@ -181,10 +181,18 @@ const data = {
 }
 
 function limpiarFormulario() {
+
   ["nombre", "edad", "color", "cria"].forEach((id) => {
       const el = document.getElementById(id);
       if(el) el.value = "";
   });
+
+  const selectTipo = document.getElementById("tipo");
+  if (selectTipo) selectTipo.selectedIndex = 0;
+
+  const selectFinca = document.getElementById("finca");
+  if (selectFinca) selectFinca.selectedIndex = 0;
+
   toggleCampoCria();
 }
 
