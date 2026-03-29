@@ -50,20 +50,43 @@ function bindUI() {
   if (tipo) {
     tipo.addEventListener("change", () => {
       toggleCampoCria();
-      
-      // Lógica de edad mínima
+
       const edadInput = document.getElementById("edad");
       if (tipo.value === "Vaca" || tipo.value === "Toro") {
         edadInput.min = "36";
-        // Si el usuario ya había escrito un número menor a 36, se lo corregimos
+        // Si cambió a Vaca y tenía una edad menor escrita, la BORRAMOS para que vea el placeholder
         if (edadInput.value !== "" && parseInt(edadInput.value) < 36) {
-          edadInput.value = "36";
+          edadInput.value = "";
         }
       } else {
         edadInput.min = "0";
-        edadInput.value = "0";
+        // Si cambió a Ternero, NO forzamos el 0. Solo borramos si el número era inválido.
+        if (edadInput.value !== "" && parseInt(edadInput.value) < 0) {
+          edadInput.value = "";
+        }
       }
     });
+  }
+  /* ====== FUNCIÓN PARA BOTONES DE EDAD ====== */
+  function cambiarEdad(paso) {
+    const input = document.getElementById("edad");
+    const tipo = document.getElementById("tipo") ? document.getElementById("tipo").value : "";
+    const min = (tipo === "Vaca" || tipo === "Toro") ? 36 : 0;
+
+    let actual = parseInt(input.value);
+
+    if (isNaN(actual)) {
+      // Si la casilla está vacía y le dan "+", ponemos el mínimo lógico
+      actual = (min === 36) ? 36 : 0;
+      if (paso > 0 && min === 0) actual = 1;
+    } else {
+      actual += paso;
+    }
+
+    // Evitamos que baje de su límite
+    if (actual < min) actual = min;
+
+    input.value = actual;
   }
 
   const editTipo = document.getElementById("edit-tipo");
@@ -109,7 +132,7 @@ let markers = [];
 function mostrarEnMapa(ganado) {
   markers.forEach((m) => map.removeLayer(m));
   markers = [];
-  
+
   // Si tu Python devuelve un objeto, extraemos la lista
   const lista = Array.isArray(ganado) ? ganado : (ganado.ganado || []);
 
@@ -118,7 +141,7 @@ function mostrarEnMapa(ganado) {
     if (!vaca.lat || !vaca.lng) return;
 
     const marker = L.marker([vaca.lat, vaca.lng]).addTo(map);
-    
+
     // IMPORTANTE: Usamos vaca.id porque así lo definiste en ganado_service.py
     marker.bindPopup(`
 
@@ -163,15 +186,15 @@ function agregarGanado() {
 
   const punto = obtenerPuntoLibre(finca, window.ganadoGlobal || []);
 
-const data = {
+  const data = {
     nombre: nombre,
     tipo: tipo,
     color: color,
     edad: parseInt(edad) || 0, // Asegura que sea número
     tiene_cria: parseInt(criaValue) || 0,
     finca_actual: finca,
-    lat: parseFloat(punto.lat), 
-    lng: parseFloat(punto.lng)  
+    lat: parseFloat(punto.lat),
+    lng: parseFloat(punto.lng)
   };
 
   // ----- ESTO ES LO QUE TE FALTÓ PEGAR -----
@@ -193,24 +216,24 @@ const data = {
     method: "POST",
     body: JSON.stringify(data)
   })
-  .then(async (res) => {
+    .then(async (res) => {
       const resData = await res.json();
-      if(!res.ok) throw new Error(resData.error || "Error al guardar");
+      if (!res.ok) throw new Error(resData.error || "Error al guardar");
       return resData;
-  })
-  .then((resData) => {
-    limpiarFormulario();
-    cargarGanado();
-    alert(resData.message || "Ganado guardado correctamente");
-  })
-  .catch(err => alert("Error: " + err.message));
+    })
+    .then((resData) => {
+      limpiarFormulario();
+      cargarGanado();
+      alert(resData.message || "Ganado guardado correctamente");
+    })
+    .catch(err => alert("Error: " + err.message));
 }
 
 function limpiarFormulario() {
 
   ["nombre", "edad", "color", "cria"].forEach((id) => {
-      const el = document.getElementById(id);
-      if(el) el.value = "";
+    const el = document.getElementById(id);
+    if (el) el.value = "";
   });
 
   const selectTipo = document.getElementById("tipo");
@@ -224,13 +247,13 @@ function limpiarFormulario() {
 
 /* ====== ELIMINAR (Ajustado a g.id) ====== */
 function eliminarGanado(id) {
-  if(!confirm("¿Seguro que quieres eliminar este animal?")) return;
+  if (!confirm("¿Seguro que quieres eliminar este animal?")) return;
   apiFetch(`${API}/ganado/${id}`, { method: "DELETE" })
     .then(async (res) => {
-        const resData = await res.json();
-        if(!res.ok) throw new Error(resData.error || "No se pudo eliminar");
-        alert(resData.message || "Eliminado");
-        cargarGanado();
+      const resData = await res.json();
+      if (!res.ok) throw new Error(resData.error || "No se pudo eliminar");
+      alert(resData.message || "Eliminado");
+      cargarGanado();
     })
     .catch(err => alert(err.message));
 }
@@ -255,7 +278,7 @@ function cerrarModal() {
 
 function actualizarVaca() {
   if (!vacaEditando) return;
-  const id = vacaEditando.id; 
+  const id = vacaEditando.id;
   const nuevaFinca = document.getElementById("edit-finca").value.toUpperCase();
 
   // Mantenemos las coordenadas actuales por defecto
@@ -286,14 +309,14 @@ function actualizarVaca() {
     method: "PUT",
     body: JSON.stringify(data)
   })
-  .then(async (res) => {
+    .then(async (res) => {
       const resData = await res.json();
-      if(!res.ok) throw new Error(resData.error || "Error al actualizar");
+      if (!res.ok) throw new Error(resData.error || "Error al actualizar");
       alert(resData.message || "Actualizado correctamente");
       cerrarModal();
       cargarGanado();
-  })
-  .catch(err => alert(err.message));
+    })
+    .catch(err => alert(err.message));
 }
 /* ====== PANEL LATERAL ====== */
 function abrirPanel() {
@@ -315,7 +338,7 @@ function volverResumen() {
 function actualizarContadoresPanel() {
   const data = window.ganadoGlobal || [];
   const totalEl = document.getElementById("count-total");
-  if(totalEl) totalEl.innerText = data.length;
+  if (totalEl) totalEl.innerText = data.length;
   // Puedes agregar más contadores aquí filtrando data
 }
 
@@ -327,7 +350,7 @@ function abrirListaGanado() {
 
 function renderListaPanel(items) {
   const cont = document.getElementById("lista-panel-ganado");
-  if(!cont) return;
+  if (!cont) return;
   cont.innerHTML = "";
   items.forEach((g) => {
     const div = document.createElement("div");
@@ -353,21 +376,21 @@ function abrirVacunas() {
 
 function llenarSelectAnimalesVacunas() {
   const sel = document.getElementById("vac-animal");
-  if(!sel) return;
+  if (!sel) return;
   sel.innerHTML = `<option value="">Seleccione un animal</option>`;
-  
+
   (window.ganadoGlobal || []).forEach((g) => {
     sel.innerHTML += `<option value="${g.id}">${g.nombre}</option>`;
   });
 
   // NUEVO: Escuchar cuando el usuario elige un animal para cargar sus vacunas
-  sel.onchange = function() {
+  sel.onchange = function () {
     cargarVacunasAsignadas(this.value);
   };
 }
 function cargarVacunasAsignadas(animalId) {
   const contenedor = document.getElementById("vac-asignadas");
-  
+
   if (!animalId) {
     contenedor.innerHTML = "";
     return;
@@ -380,7 +403,7 @@ function cargarVacunasAsignadas(animalId) {
     .then(data => {
       // Tu backend devuelve una lista directa
       const vacunas = Array.isArray(data) ? data : (data.vacunas || []);
-      
+
       if (vacunas.length === 0) {
         contenedor.innerHTML = "<span style='font-size:12px; color:gray;'>No tiene vacunas asignadas.</span>";
         return;
@@ -392,7 +415,7 @@ function cargarVacunasAsignadas(animalId) {
         div.style.padding = "8px 0";
         div.style.borderBottom = "1px solid #eee";
         div.style.fontSize = "13px";
-        
+
         // v.nombre y v.descripcion vienen del JOIN manual que hicimos en Python
         div.innerHTML = `
           <b>${v.nombre}</b> - <span style="color:var(--camel);">${v.fecha}</span><br>
@@ -412,7 +435,7 @@ function cargarCatalogoVacunas() {
     .then(res => res.json())
     .then(vacs => {
       const sel = document.getElementById("vac-select");
-      if(!sel) return;
+      if (!sel) return;
       sel.innerHTML = `<option value="">Seleccione vacuna</option>`;
       vacs.forEach(v => sel.innerHTML += `<option value="${v.id}">${v.nombre}</option>`);
     });
@@ -431,11 +454,11 @@ async function asignarVacuna() {
       body: JSON.stringify({ vacuna_ids: [vacunaId], fecha })
     });
     const resData = await res.json();
-    if(!res.ok) throw new Error(resData.error || "Error");
-    
+    if (!res.ok) throw new Error(resData.error || "Error");
+
     alert(resData.message || "Vacuna asignada");
     document.getElementById("vac-select").value = "";
-    
+
     // NUEVO: Refrescar la lista de vacunas del animal automáticamente
     cargarVacunasAsignadas(animalId);
 
