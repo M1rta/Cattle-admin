@@ -68,43 +68,50 @@ function bindUI() {
     });
   }
   /* ====== FUNCIÓN PARA BOTONES DE EDAD ====== */
-  function cambiarEdad(paso) {
-    const input = document.getElementById("edad");
-    const tipo = document.getElementById("tipo") ? document.getElementById("tipo").value : "";
-    const min = (tipo === "Vaca" || tipo === "Toro") ? 36 : 0;
+ function cambiarEdad(paso) {
+  const input = document.getElementById("edad");
+  if (!input) return; // Por si acaso no encuentra el input
+  
+  const tipo = document.getElementById("tipo") ? document.getElementById("tipo").value : "";
+  const min = (tipo === "Vaca" || tipo === "Toro") ? 36 : 0;
 
-    let actual = parseInt(input.value);
+  let actual = parseInt(input.value);
 
-    if (isNaN(actual)) {
-      // Si la casilla está vacía y le dan "+", ponemos el mínimo lógico
-      actual = (min === 36) ? 36 : 0;
-      if (paso > 0 && min === 0) actual = 1;
-    } else {
-      actual += paso;
-    }
-
-    // Evitamos que baje de su límite
-    if (actual < min) actual = min;
-
-    input.value = actual;
+  // Si la casilla está vacía y tocamos un botón
+  if (isNaN(actual)) {
+    // Si es vaca empieza en 36, si es ternero y damos "+" empieza en 1
+    actual = (min === 36) ? 36 : (paso > 0 ? 1 : 0);
+  } else {
+    // Si ya hay un número, le sumamos o restamos
+    actual += paso;
   }
-  /* ====== FUNCIÓN PARA BOTONES DE EDAD (EDITAR) ====== */
-  function cambiarEdadEdit(paso) {
-    const input = document.getElementById("edit-edad");
-    const tipo = document.getElementById("edit-tipo").value;
-    const min = (tipo === "Vaca" || tipo === "Toro") ? 36 : 0;
 
-    let actual = parseInt(input.value);
+  // Validamos que no baje del mínimo permitido
+  if (actual < min) actual = min;
+  
+  input.value = actual;
+}
 
-    if (isNaN(actual)) {
-      actual = (min === 36) ? 36 : 0;
-    } else {
-      actual += paso;
-    }
+// Para la ventana modal (Editar Ganado)
+function cambiarEdadEdit(paso) {
+  const input = document.getElementById("edit-edad");
+  if (!input) return; 
+  
+  const tipo = document.getElementById("edit-tipo") ? document.getElementById("edit-tipo").value : "";
+  const min = (tipo === "Vaca" || tipo === "Toro") ? 36 : 0;
 
-    if (actual < min) actual = min;
-    input.value = actual;
+  let actual = parseInt(input.value);
+
+  if (isNaN(actual)) {
+    actual = (min === 36) ? 36 : (paso > 0 ? 1 : 0);
+  } else {
+    actual += paso;
   }
+
+  if (actual < min) actual = min;
+  
+  input.value = actual;
+}
 
   const editTipo = document.getElementById("edit-tipo");
   if (editTipo) editTipo.addEventListener("change", toggleCampoCriaEditar);
@@ -168,6 +175,7 @@ function mostrarEnMapa(ganado) {
       <hr style="border: 0.5px solid #eee; margin: 8px 0;">
       <b>Edad:</b> ${vaca.edad} meses<br>
       <b>Finca:</b> ${vaca.finca_actual}<br><br>
+      <b>Tiene cria:</b> ${vaca.tiene_cria}<br><br>
       <button type="button" style="width: 100%;" onclick='abrirModal(${JSON.stringify(vaca)})'>Editar</button>
     `);
     markers.push(marker);
