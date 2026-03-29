@@ -9,7 +9,7 @@ if (!token) window.location.href = "/login";
 /* =========================
    API CONFIGURADA PARA VERCEL/LOCAL
    ========================= */
-const API = window.location.origin + "/api";
+const API = window.location.origin;
 
 function headersAuth(extraHeaders = {}) {
   return {
