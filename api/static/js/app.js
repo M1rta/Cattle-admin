@@ -88,6 +88,23 @@ function bindUI() {
 
     input.value = actual;
   }
+  /* ====== FUNCIÓN PARA BOTONES DE EDAD (EDITAR) ====== */
+  function cambiarEdadEdit(paso) {
+    const input = document.getElementById("edit-edad");
+    const tipo = document.getElementById("edit-tipo").value;
+    const min = (tipo === "Vaca" || tipo === "Toro") ? 36 : 0;
+
+    let actual = parseInt(input.value);
+
+    if (isNaN(actual)) {
+      actual = (min === 36) ? 36 : 0;
+    } else {
+      actual += paso;
+    }
+
+    if (actual < min) actual = min;
+    input.value = actual;
+  }
 
   const editTipo = document.getElementById("edit-tipo");
   if (editTipo) editTipo.addEventListener("change", toggleCampoCriaEditar);
@@ -144,9 +161,14 @@ function mostrarEnMapa(ganado) {
 
     // IMPORTANTE: Usamos vaca.id porque así lo definiste en ganado_service.py
     marker.bindPopup(`
-
-      Finca: ${vaca.finca_actual}<br><br>
-      <button type="button" onclick='abrirModal(${JSON.stringify(vaca)})'>Editar</button>
+      <div style="text-align: center;">
+        <b style="font-size: 15px; color: var(--charcoal);">${vaca.nombre}</b><br>
+        <span style="color: gray; font-size: 12px;">${vaca.tipo} | ${vaca.color}</span>
+      </div>
+      <hr style="border: 0.5px solid #eee; margin: 8px 0;">
+      <b>Edad:</b> ${vaca.edad} meses<br>
+      <b>Finca:</b> ${vaca.finca_actual}<br><br>
+      <button type="button" style="width: 100%;" onclick='abrirModal(${JSON.stringify(vaca)})'>Editar</button>
     `);
     markers.push(marker);
   });
@@ -278,45 +300,37 @@ function cerrarModal() {
 
 function actualizarVaca() {
   if (!vacaEditando) return;
-  const id = vacaEditando.id;
-  const nuevaFinca = document.getElementById("edit-finca").value.toUpperCase();
-
-  // Mantenemos las coordenadas actuales por defecto
-  let lat = vacaEditando.lat;
-  let lng = vacaEditando.lng;
-
-  // Si el usuario eligió una finca diferente, calculamos un nuevo punto libre en esa finca
-  if (nuevaFinca !== vacaEditando.finca_actual) {
-    const nuevoPunto = obtenerPuntoLibre(nuevaFinca, window.ganadoGlobal || []);
-    if (nuevoPunto) {
-      lat = nuevoPunto.lat;
-      lng = nuevoPunto.lng;
-    }
-  }
+  const id = vacaEditando.id; 
 
   const data = {
-    nombre: document.getElementById("edit-nombre").value,
-    tipo: document.getElementById("edit-tipo").value,
-    color: document.getElementById("edit-color").value,
-    edad: parseInt(document.getElementById("edit-edad").value) || 0,
-    tiene_cria: parseInt(document.getElementById("edit-cria").value) || 0,
-    finca_actual: nuevaFinca,
-    lat: parseFloat(lat), // Ahora sí enviamos las coordenadas
-    lng: parseFloat(lng)  // Ahora sí enviamos las coordenadas
+    nombre: document.getElementById("edit-nombre").value, // Bloqueado, pero se envía
+    tipo: document.getElementById("edit-tipo").value,     // Bloqueado
+    color: document.getElementById("edit-color").value,   // Bloqueado
+    finca_actual: document.getElementById("edit-finca").value, // Bloqueado
+    edad: parseInt(document.getElementById("edit-edad").value) || 0, // ¡EDITABLE!
+    tiene_cria: parseInt(document.getElementById("edit-cria").value) || 0, // ¡EDITABLE!
+    lat: parseFloat(vacaEditando.lat), // Se queda en el mismo lugar
+    lng: parseFloat(vacaEditando.lng)  // Se queda en el mismo lugar
   };
+
+  // Validaciones de seguridad
+  if (data.edad < 0) return alert("La edad no puede ser menor a 0");
+  if ((data.tipo === "Vaca" || data.tipo === "Toro") && data.edad < 36) {
+    return alert("Las Vacas y Toros deben tener al menos 36 meses.");
+  }
 
   apiFetch(`${API}/ganado/${id}`, {
     method: "PUT",
     body: JSON.stringify(data)
   })
-    .then(async (res) => {
+  .then(async (res) => {
       const resData = await res.json();
-      if (!res.ok) throw new Error(resData.error || "Error al actualizar");
+      if(!res.ok) throw new Error(resData.error || "Error al actualizar");
       alert(resData.message || "Actualizado correctamente");
       cerrarModal();
       cargarGanado();
-    })
-    .catch(err => alert(err.message));
+  })
+  .catch(err => alert(err.message));
 }
 /* ====== PANEL LATERAL ====== */
 function abrirPanel() {
