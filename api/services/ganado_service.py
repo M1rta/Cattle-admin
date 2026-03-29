@@ -103,13 +103,26 @@ def mover_ganado_db(user_id, ganado_id, data: dict):
 # -------------------------
 # VACUNAS (CATALOGO GLOBAL)
 # -------------------------
+
 def listar_catalogo_vacunas():
     db = get_db()
-    # Si la colección está vacía, puedes insertar unas por defecto
+    
+    # Si la colección de vacunas está vacía, insertamos las opciones por defecto
+    if db.vacunas.count_documents({}) == 0:
+        vacunas_por_defecto = [
+            {"nombre": "Brucelosis", "descripcion": "Vacuna contra la Brucelosis"},
+            {"nombre": "Clostridiosis", "descripcion": "Vacuna contra Clostridiosis"},
+            {"nombre": "Leptospirosis", "descripcion": "Vacuna contra Leptospirosis"},
+            {"nombre": "Rabia", "descripcion": "Vacuna Antirrábica"}
+        ]
+        db.vacunas.insert_many(vacunas_por_defecto)
+
+    # Ahora sí, buscamos las vacunas y las devolvemos
     rows = list(db.vacunas.find().sort("nombre", 1))
     for r in rows:
         r["id"] = str(r["_id"])
         del r["_id"]
+        
     return rows, 200
 
 

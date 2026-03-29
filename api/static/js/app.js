@@ -229,15 +229,31 @@ function cerrarModal() {
 
 function actualizarVaca() {
   if (!vacaEditando) return;
-  const id = vacaEditando.id; // Tu Python envía 'id'
-  
+  const id = vacaEditando.id; 
+  const nuevaFinca = document.getElementById("edit-finca").value.toUpperCase();
+
+  // Mantenemos las coordenadas actuales por defecto
+  let lat = vacaEditando.lat;
+  let lng = vacaEditando.lng;
+
+  // Si el usuario eligió una finca diferente, calculamos un nuevo punto libre en esa finca
+  if (nuevaFinca !== vacaEditando.finca_actual) {
+    const nuevoPunto = obtenerPuntoLibre(nuevaFinca, window.ganadoGlobal || []);
+    if (nuevoPunto) {
+      lat = nuevoPunto.lat;
+      lng = nuevoPunto.lng;
+    }
+  }
+
   const data = {
     nombre: document.getElementById("edit-nombre").value,
     tipo: document.getElementById("edit-tipo").value,
     color: document.getElementById("edit-color").value,
     edad: parseInt(document.getElementById("edit-edad").value) || 0,
     tiene_cria: parseInt(document.getElementById("edit-cria").value) || 0,
-    finca_actual: document.getElementById("edit-finca").value.toUpperCase()
+    finca_actual: nuevaFinca,
+    lat: parseFloat(lat), // Ahora sí enviamos las coordenadas
+    lng: parseFloat(lng)  // Ahora sí enviamos las coordenadas
   };
 
   apiFetch(`${API}/ganado/${id}`, {
@@ -253,7 +269,6 @@ function actualizarVaca() {
   })
   .catch(err => alert(err.message));
 }
-
 /* ====== PANEL LATERAL ====== */
 function abrirPanel() {
   document.getElementById("panel-ganado").classList.remove("hidden");
