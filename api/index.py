@@ -43,4 +43,9 @@ def nosotros():
 def contacto():
     return render_template("contacto.html")
 
-# No hace falta poner app.run() ni handlers extras para Vercel
+#   Staging Environment #
+'''
+if __name__ == '__main__':
+    app.run(debug=True)
+'''    
+#   Staging Environment #
