@@ -45,6 +45,7 @@ const fincas = {
 };
 
 /* ====== UI BINDING ====== */
+/* ====== UI BINDING ====== */
 function bindUI() {
   const tipo = document.getElementById("tipo");
   if (tipo) {
@@ -54,7 +55,7 @@ function bindUI() {
       const edadInput = document.getElementById("edad");
       if (tipo.value === "Vaca" || tipo.value === "Toro") {
         edadInput.min = "36";
-        // Si cambió a Vaca y tenía una edad menor escrita, la BORRAMOS para que vea el placeholder
+        // Si cambió a Vaca y tenía una edad menor escrita, la BORRAMOS
         if (edadInput.value !== "" && parseInt(edadInput.value) < 36) {
           edadInput.value = "";
         }
@@ -67,28 +68,76 @@ function bindUI() {
       }
     });
   }
-  /* ====== FUNCIÓN PARA BOTONES DE EDAD ====== */
- function cambiarEdad(paso) {
+
+  // --- CONECTAR BOTONES DE EDAD ---
+  const btnRestar = document.getElementById("btn-restar-edad");
+  if (btnRestar) btnRestar.addEventListener("click", () => cambiarEdad(-1));
+
+  const btnSumar = document.getElementById("btn-sumar-edad");
+  if (btnSumar) btnSumar.addEventListener("click", () => cambiarEdad(1));
+
+  const btnEditRestar = document.getElementById("btn-edit-restar-edad");
+  if (btnEditRestar) btnEditRestar.addEventListener("click", () => cambiarEdadEdit(-1));
+
+  const btnEditSumar = document.getElementById("btn-edit-sumar-edad");
+  if (btnEditSumar) btnEditSumar.addEventListener("click", () => cambiarEdadEdit(1));
+  // --------------------------------
+
+  const editTipo = document.getElementById("edit-tipo");
+  if (editTipo) editTipo.addEventListener("change", toggleCampoCriaEditar);
+
+  const btnAsignar = document.getElementById("btn-asignar-vacuna");
+  if (btnAsignar) {
+    btnAsignar.type = "button";
+    btnAsignar.onclick = asignarVacuna;
+  }
+
+  const btnCancelar = document.getElementById("btn-cancelar");
+  if (btnCancelar) btnCancelar.onclick = cerrarModal;
+
+  const btnActualizar = document.getElementById("btn-actualizar");
+  if (btnActualizar) btnActualizar.onclick = actualizarVaca;
+
+  toggleCampoCria();
+  toggleCampoCriaEditar();
+}
+
+/* ====== FUNCIONES PARA BOTONES DE EDAD (AFUERA DE bindUI) ====== */
+function cambiarEdad(paso) {
   const input = document.getElementById("edad");
-  if (!input) return; // Por si acaso no encuentra el input
+  if (!input) return; 
   
   const tipo = document.getElementById("tipo") ? document.getElementById("tipo").value : "";
   const min = (tipo === "Vaca" || tipo === "Toro") ? 36 : 0;
 
   let actual = parseInt(input.value);
 
-  // Si la casilla está vacía y tocamos un botón
   if (isNaN(actual)) {
-    // Si es vaca empieza en 36, si es ternero y damos "+" empieza en 1
     actual = (min === 36) ? 36 : (paso > 0 ? 1 : 0);
   } else {
-    // Si ya hay un número, le sumamos o restamos
     actual += paso;
   }
 
-  // Validamos que no baje del mínimo permitido
   if (actual < min) actual = min;
+  input.value = actual;
+}
+
+function cambiarEdadEdit(paso) {
+  const input = document.getElementById("edit-edad");
+  if (!input) return; 
   
+  const tipo = document.getElementById("edit-tipo") ? document.getElementById("edit-tipo").value : "";
+  const min = (tipo === "Vaca" || tipo === "Toro") ? 36 : 0;
+
+  let actual = parseInt(input.value);
+
+  if (isNaN(actual)) {
+    actual = (min === 36) ? 36 : (paso > 0 ? 1 : 0);
+  } else {
+    actual += paso;
+  }
+
+  if (actual < min) actual = min;
   input.value = actual;
 }
 
@@ -130,7 +179,7 @@ function cambiarEdadEdit(paso) {
 
   toggleCampoCria();
   toggleCampoCriaEditar();
-}
+
 
 function toggleCampoCria() {
   const tipo = document.getElementById("tipo");
@@ -175,7 +224,7 @@ function mostrarEnMapa(ganado) {
       <hr style="border: 0.5px solid #eee; margin: 8px 0;">
       <b>Edad:</b> ${vaca.edad} meses<br>
       <b>Finca:</b> ${vaca.finca_actual}<br><br>
-      <b>Tiene cria:</b> ${vaca.tiene_cria}<br><br>
+      <b>Cria:</b> ${vaca.tiene_cria}<br><br>
       <button type="button" style="width: 100%;" onclick='abrirModal(${JSON.stringify(vaca)})'>Editar</button>
     `);
     markers.push(marker);

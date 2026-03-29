@@ -21,12 +21,12 @@
 </head>
 
 <body>
-<div id="modal" class="modal">
+  <div id="modal" class="modal">
     <div class="modal-content">
       <h3>Editar animal</h3>
-      
+
       <input id="edit-nombre" placeholder="Nombre" aria-label="Nombre" readonly />
-      
+
       <select id="edit-tipo" aria-label="Tipo de animal" disabled>
         <option value="Vaca">Vaca</option>
         <option value="Toro">Toro</option>
@@ -48,9 +48,9 @@
       </select>
 
       <div class="modern-input-group">
-        <button type="button" class="btn-stepper" onclick="cambiarEdadEdit(-1)">−</button>
+        <button type="button" id="btn-edit-restar-edad" class="btn-stepper">−</button>
         <input id="edit-edad" type="number" min="0" placeholder="Edad (meses)" aria-label="Edad en meses" />
-        <button type="button" class="btn-stepper" onclick="cambiarEdadEdit(1)">+</button>
+        <button type="button" id="btn-edit-sumar-edad" class="btn-stepper">+</button>
       </div>
 
       <div id="contenedor-edit-cria">
@@ -127,9 +127,9 @@
           </select>
 
           <div class="modern-input-group">
-            <button type="button" class="btn-stepper" onclick="cambiarEdad(-1)">−</button>
+            <button type="button" id="btn-restar-edad" class="btn-stepper">−</button>
             <input id="edad" type="number" min="0" placeholder="Edad (meses)" aria-label="Edad en meses" />
-            <button type="button" class="btn-stepper" onclick="cambiarEdad(1)">+</button>
+            <button type="button" id="btn-sumar-edad" class="btn-stepper">+</button>
           </div>
 
           <div id="contenedor-cria">
