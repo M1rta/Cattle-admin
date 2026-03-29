@@ -1,54 +1,29 @@
 {
-  
-    "version": "2",
-  
-    "builds": [
-  
-      
+  "version": "2",
+  "builds": [
     {
-  
-      
-      
-    "src": "api/index.py",
-  
-      
-      
-    "use": "@vercel/python"
-  
-      
-    }
-  
-    ],
-  
-    "routes": [
-  
-      
-    {
-  
-      
-      
-    "src": "/(.*)",
-  
-      
-      
-    "dest": "api/index.py"
-  
-      
-    }
-  
-    ],
-  
-    "scripts": {
-  
-      
-    "dev": "python api/index.py"
-  
+      "src": "app.py",
+      "use": "@vercel/python"
     },
-  
-    "dependencies": {
-  
-      
-    "mongodb": "^7.1.1"
-  
+    {
+      "src": "index.html",
+      "use": "@vercel/static"
     }
+  ],
+  "routes": [
+    {
+      "src": "/api/(.*)",
+      "dest": "app.py"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/$1"
+    }
+  ],
+  "scripts": {
+    "dev": "python api/index.py"
+  },
+  "dependencies": {
+    "mongodb": "^7.1.1"
+  }
 }
