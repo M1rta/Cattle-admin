@@ -1,31 +1,34 @@
-/* =======================================
-   LÓGICA PARA CAMBIAR ENTRE PANELES
-   ======================================= */
-function cambiarPanel(panelDestino) {
-  // 1. Ocultamos todos los paneles de la derecha
-  document.querySelectorAll('.right-pane').forEach(panel => {
-    panel.classList.remove('active');
-  });
-  
-  // 2. Mostramos solo el que el usuario pidió
-  document.getElementById('panel-' + panelDestino).classList.add('active');
-}
+const API = "";
 
-/* =======================================
-   CONEXIÓN CON EL API DE FLASK
-   ======================================= */
-const API = window.location.origin;
+document.getElementById("login-form")?.addEventListener("submit", async (e) => {
+  e.preventDefault();
 
-async function procesarLogin() {
-  // Aquí debes pegar el fetch que ya tenías para iniciar sesión
-  // y que guardaba el token en el localStorage.
-  
-  alert("Aquí va la conexión de Login con Python");
-  // window.location.href = "/index"; 
-}
+  const email = document.getElementById("email").value.trim();
+  const password = document.getElementById("password").value;
 
-async function procesarRegistro() {
-  // Aquí debes pegar el fetch que ya tenías para registrar un usuario nuevo
-  
-  alert("Aquí va la conexión de Registro con Python");
-}
+  if (!email || !password) {
+    return alert("Completa todos los campos.");
+  }
+
+  try {
+    const res = await fetch(`${API}/auth/login`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, password })
+    });
+
+    const data = await res.json().catch(() => ({}));
+
+    if (!res.ok) {
+      return alert(data.error || "Login inválido");
+    }
+
+    localStorage.setItem("token", data.token);
+
+    window.location.href = "/index";
+
+  } catch (err) {
+    console.error(err);
+    alert("Error conectando con el backend.");
+  }
+});
