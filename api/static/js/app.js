@@ -105,8 +105,8 @@ function bindUI() {
 /* ====== FUNCIONES PARA BOTONES DE EDAD (AFUERA DE bindUI) ====== */
 function cambiarEdad(paso) {
   const input = document.getElementById("edad");
-  if (!input) return; 
-  
+  if (!input) return;
+
   const tipo = document.getElementById("tipo") ? document.getElementById("tipo").value : "";
   const min = (tipo === "Vaca" || tipo === "Toro") ? 36 : 0;
 
@@ -124,8 +124,8 @@ function cambiarEdad(paso) {
 
 function cambiarEdadEdit(paso) {
   const input = document.getElementById("edit-edad");
-  if (!input) return; 
-  
+  if (!input) return;
+
   const tipo = document.getElementById("edit-tipo") ? document.getElementById("edit-tipo").value : "";
   const min = (tipo === "Vaca" || tipo === "Toro") ? 36 : 0;
 
@@ -144,8 +144,8 @@ function cambiarEdadEdit(paso) {
 // Para la ventana modal (Editar Ganado)
 function cambiarEdadEdit(paso) {
   const input = document.getElementById("edit-edad");
-  if (!input) return; 
-  
+  if (!input) return;
+
   const tipo = document.getElementById("edit-tipo") ? document.getElementById("edit-tipo").value : "";
   const min = (tipo === "Vaca" || tipo === "Toro") ? 36 : 0;
 
@@ -158,27 +158,27 @@ function cambiarEdadEdit(paso) {
   }
 
   if (actual < min) actual = min;
-  
+
   input.value = actual;
 }
 
-  const editTipo = document.getElementById("edit-tipo");
-  if (editTipo) editTipo.addEventListener("change", toggleCampoCriaEditar);
+const editTipo = document.getElementById("edit-tipo");
+if (editTipo) editTipo.addEventListener("change", toggleCampoCriaEditar);
 
-  const btnAsignar = document.getElementById("btn-asignar-vacuna");
-  if (btnAsignar) {
-    btnAsignar.type = "button";
-    btnAsignar.onclick = asignarVacuna;
-  }
+const btnAsignar = document.getElementById("btn-asignar-vacuna");
+if (btnAsignar) {
+  btnAsignar.type = "button";
+  btnAsignar.onclick = asignarVacuna;
+}
 
-  const btnCancelar = document.getElementById("btn-cancelar");
-  if (btnCancelar) btnCancelar.onclick = cerrarModal;
+const btnCancelar = document.getElementById("btn-cancelar");
+if (btnCancelar) btnCancelar.onclick = cerrarModal;
 
-  const btnActualizar = document.getElementById("btn-actualizar");
-  if (btnActualizar) btnActualizar.onclick = actualizarVaca;
+const btnActualizar = document.getElementById("btn-actualizar");
+if (btnActualizar) btnActualizar.onclick = actualizarVaca;
 
-  toggleCampoCria();
-  toggleCampoCriaEditar();
+toggleCampoCria();
+toggleCampoCriaEditar();
 
 
 function toggleCampoCria() {
@@ -215,7 +215,16 @@ function mostrarEnMapa(ganado) {
 
     const marker = L.marker([vaca.lat, vaca.lng]).addTo(map);
 
-    // IMPORTANTE: Usamos vaca.id porque así lo definiste en ganado_service.py
+    // --- LÓGICA INTELIGENTE PARA LA CRÍA ---
+    let infoCria = "";
+    if (vaca.tipo === "Vaca") {
+      // Convertimos el 0 o 1 en palabras bonitas
+      const textoCria = (vaca.tiene_cria === 1 || vaca.tiene_cria === "1") ? "Sí" : "No";
+      infoCria = `<b>Cría:</b> ${textoCria}<br>`;
+    }
+    // ---------------------------------------
+
+    // Insertamos la variable ${infoCria} justo arriba del botón
     marker.bindPopup(`
       <div style="text-align: center;">
         <b style="font-size: 15px; color: var(--charcoal);">${vaca.nombre}</b><br>
@@ -223,10 +232,12 @@ function mostrarEnMapa(ganado) {
       </div>
       <hr style="border: 0.5px solid #eee; margin: 8px 0;">
       <b>Edad:</b> ${vaca.edad} meses<br>
-      <b>Finca:</b> ${vaca.finca_actual}<br><br>
-      <b>Cria:</b> ${vaca.tiene_cria}<br><br>
+      <b>Finca:</b> ${vaca.finca_actual}<br>
+      ${infoCria}
+      <br>
       <button type="button" style="width: 100%;" onclick='abrirModal(${JSON.stringify(vaca)})'>Editar</button>
     `);
+
     markers.push(marker);
   });
 }
@@ -357,7 +368,7 @@ function cerrarModal() {
 
 function actualizarVaca() {
   if (!vacaEditando) return;
-  const id = vacaEditando.id; 
+  const id = vacaEditando.id;
 
   const data = {
     nombre: document.getElementById("edit-nombre").value, // Bloqueado, pero se envía
@@ -380,14 +391,14 @@ function actualizarVaca() {
     method: "PUT",
     body: JSON.stringify(data)
   })
-  .then(async (res) => {
+    .then(async (res) => {
       const resData = await res.json();
-      if(!res.ok) throw new Error(resData.error || "Error al actualizar");
+      if (!res.ok) throw new Error(resData.error || "Error al actualizar");
       alert(resData.message || "Actualizado correctamente");
       cerrarModal();
       cargarGanado();
-  })
-  .catch(err => alert(err.message));
+    })
+    .catch(err => alert(err.message));
 }
 /* ====== PANEL LATERAL ====== */
 function abrirPanel() {
