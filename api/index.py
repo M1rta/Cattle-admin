@@ -18,10 +18,6 @@ CORS(app)
 app.register_blueprint(auth_bp)
 app.register_blueprint(ganado_bp)
 
-@app.route("/test")
-def test():
-    return "Servidor funcionando"
-
 @app.route("/")
 @app.route("/login")
 def login():
@@ -34,5 +30,17 @@ def register():
 @app.route("/index")
 def home():
     return render_template("index.html")
+
+@app.route("/servicios")
+def servicios():
+    return render_template("servicios.html")
+
+@app.route("/nosotros")
+def nosotros():
+    return render_template("nosotros.html")
+
+@app.route("/contacto")
+def contacto():
+    return render_template("contacto.html")
 
 # No hace falta poner app.run() ni handlers extras para Vercel
