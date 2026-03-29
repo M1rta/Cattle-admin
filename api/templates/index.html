@@ -25,22 +25,33 @@
   <div id="modal" class="modal">
     <div class="modal-content">
       <h3>Editar animal</h3>
-      <input id="edit-edad" type="number" placeholder="Edad" aria-label="Edad" />
+<input id="edit-nombre" placeholder="Nombre" aria-label="Nombre" readonly />
+   <input id="edit-edad" type="number" min="0" placeholder="Edad (meses)" aria-label="Edad en meses" readonly />
 
+   <div id="contenedor-edit-cria">
+     <select id="edit-cria" aria-label="Tiene cría">
+       <option value="">¿Tiene cría?</option>
+       <option value="1">Sí</option>
+       <option value="0">No</option>
+     </select>
+   </div>
 
+   <select id="edit-finca" aria-label="Finca">
+     <option value="A">A</option>
+     <option value="B">B</option>
+     <option value="C">C</option>
+     </select>
 
-      <select id="edit-finca" aria-label="Finca">
-        <option value="A">A</option>
-        <option value="B">B</option>
-        <option value="C">C</option>
-        <option value="D">D</option>
-        <option value="E">E</option>
-        <option value="F">F</option>
-        <option value="L">L</option>
-      </select>
+   <select id="edit-tipo" aria-label="Tipo de animal" disabled>
+     <option value="Vaca">Vaca</option>
+     <option value="Toro">Toro</option>
+     <option value="Ternera">Ternera</option>
+     <option value="Ternero">Ternero</option>
+     <option value="Destetado">Destetado</option>
+   </select>
 
-      <input id="edit-color" placeholder="Color" aria-label="Color" />
-
+   <input id="edit-color" placeholder="Color" aria-label="Color" readonly />
+   
       <div class="modal-buttons">
         <button id="btn-actualizar" type="button">Actualizar</button>
         <button id="btn-cancelar" type="button" class="btn-secondary">Cancelar</button>
@@ -106,7 +117,7 @@
             <option value="Chocolate">Chocolate</option>
           </select>
 
-          <input id="edad" type="number" placeholder="Edad" aria-label="Edad" />
+          <input id="edad" type="number" min="0" placeholder="Edad (meses)" aria-label="Edad en meses" />
 
           <div id="contenedor-cria">
             <select id="cria" aria-label="Tiene cría">

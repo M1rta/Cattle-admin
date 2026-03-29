@@ -797,3 +797,18 @@ button:active {
     align-self: flex-start;
   }
 }
+/* Campos bloqueados en el modal de edición */
+input[readonly], 
+select:disabled {
+  background-color: #e8e4e1; /* Gris claro / crema oscuro */
+  color: #8a817c; /* Texto grisáceo */
+  cursor: not-allowed;
+  border-color: rgba(87, 84, 83, 0.08);
+  box-shadow: none;
+}
+
+input[readonly]:hover, 
+select:disabled:hover {
+  transform: none; /* Quitamos la animación de saltito al pasar el mouse */
+  border-color: rgba(87, 84, 83, 0.08);
+}

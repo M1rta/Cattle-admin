@@ -47,7 +47,23 @@ const fincas = {
 /* ====== UI BINDING ====== */
 function bindUI() {
   const tipo = document.getElementById("tipo");
-  if (tipo) tipo.addEventListener("change", toggleCampoCria);
+  if (tipo) {
+    tipo.addEventListener("change", () => {
+      toggleCampoCria();
+      
+      // Lógica de edad mínima
+      const edadInput = document.getElementById("edad");
+      if (tipo.value === "Vaca" || tipo.value === "Toro") {
+        edadInput.min = "36";
+        // Si el usuario ya había escrito un número menor a 36, se lo corregimos
+        if (edadInput.value !== "" && parseInt(edadInput.value) < 36) {
+          edadInput.value = "36";
+        }
+      } else {
+        edadInput.min = "0";
+      }
+    });
+  }
 
   const editTipo = document.getElementById("edit-tipo");
   if (editTipo) editTipo.addEventListener("change", toggleCampoCriaEditar);
@@ -104,8 +120,7 @@ function mostrarEnMapa(ganado) {
     
     // IMPORTANTE: Usamos vaca.id porque así lo definiste en ganado_service.py
     marker.bindPopup(`
-      <b>${vaca.nombre}</b><br>
-      Tipo: ${vaca.tipo || "N/A"}<br>
+
       Finca: ${vaca.finca_actual}<br><br>
       <button type="button" onclick='abrirModal(${JSON.stringify(vaca)})'>Editar</button>
     `);
@@ -154,9 +169,19 @@ const data = {
     edad: parseInt(edad) || 0, // Asegura que sea número
     tiene_cria: parseInt(criaValue) || 0,
     finca_actual: finca,
-    lat: parseFloat(punto.lat), // Asegura que sea número decimal
-    lng: parseFloat(punto.lng)  // Asegura que sea número decimal
-};
+    lat: parseFloat(punto.lat), 
+    lng: parseFloat(punto.lng)  
+  };
+
+  // ----- ESTO ES LO QUE TE FALTÓ PEGAR -----
+  // Validaciones de edad estrictas
+  if (data.edad < 0) {
+    return alert("La edad no puede ser menor a 0 meses.");
+  }
+  if ((data.tipo === "Vaca" || data.tipo === "Toro") && data.edad < 36) {
+    return alert("Atención: Las Vacas y Toros deben tener al menos 36 meses (3 años).");
+  }
+  // -----------------------------------------
 
   // Validaciones para evitar el Error 400 de tu Python
   if (!data.nombre || !data.tipo || !data.color || isNaN(data.edad) || !data.finca_actual) {
@@ -329,9 +354,56 @@ function llenarSelectAnimalesVacunas() {
   const sel = document.getElementById("vac-animal");
   if(!sel) return;
   sel.innerHTML = `<option value="">Seleccione un animal</option>`;
+  
   (window.ganadoGlobal || []).forEach((g) => {
     sel.innerHTML += `<option value="${g.id}">${g.nombre}</option>`;
   });
+
+  // NUEVO: Escuchar cuando el usuario elige un animal para cargar sus vacunas
+  sel.onchange = function() {
+    cargarVacunasAsignadas(this.value);
+  };
+}
+function cargarVacunasAsignadas(animalId) {
+  const contenedor = document.getElementById("vac-asignadas");
+  
+  if (!animalId) {
+    contenedor.innerHTML = "";
+    return;
+  }
+
+  contenedor.innerHTML = "<span style='font-size:12px;'>Cargando...</span>";
+
+  apiFetch(`${API}/ganado/${animalId}/vacunas`)
+    .then(res => res.json())
+    .then(data => {
+      // Tu backend devuelve una lista directa
+      const vacunas = Array.isArray(data) ? data : (data.vacunas || []);
+      
+      if (vacunas.length === 0) {
+        contenedor.innerHTML = "<span style='font-size:12px; color:gray;'>No tiene vacunas asignadas.</span>";
+        return;
+      }
+
+      contenedor.innerHTML = "";
+      vacunas.forEach(v => {
+        const div = document.createElement("div");
+        div.style.padding = "8px 0";
+        div.style.borderBottom = "1px solid #eee";
+        div.style.fontSize = "13px";
+        
+        // v.nombre y v.descripcion vienen del JOIN manual que hicimos en Python
+        div.innerHTML = `
+          <b>${v.nombre}</b> - <span style="color:var(--camel);">${v.fecha}</span><br>
+          <span style="font-size:11px; color:gray;">${v.descripcion || ''}</span>
+        `;
+        contenedor.appendChild(div);
+      });
+    })
+    .catch(err => {
+      console.error(err);
+      contenedor.innerHTML = "<span style='font-size:12px; color:red;'>Error al cargar vacunas</span>";
+    });
 }
 
 function cargarCatalogoVacunas() {
@@ -359,8 +431,13 @@ async function asignarVacuna() {
     });
     const resData = await res.json();
     if(!res.ok) throw new Error(resData.error || "Error");
+    
     alert(resData.message || "Vacuna asignada");
     document.getElementById("vac-select").value = "";
+    
+    // NUEVO: Refrescar la lista de vacunas del animal automáticamente
+    cargarVacunasAsignadas(animalId);
+
   } catch (err) {
     alert(err.message);
   }
