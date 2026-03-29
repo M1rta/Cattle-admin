@@ -314,7 +314,7 @@ function agregarGanado() {
     .then((resData) => {
       limpiarFormulario();
       cargarGanado();
-      alert(resData.message || "Ganado guardado correctamente");
+      
     })
     .catch(err => alert("Error: " + err.message));
 }
@@ -342,7 +342,7 @@ function eliminarGanado(id) {
     .then(async (res) => {
       const resData = await res.json();
       if (!res.ok) throw new Error(resData.error || "No se pudo eliminar");
-      alert(resData.message || "Eliminado");
+
       cargarGanado();
     })
     .catch(err => alert(err.message));
@@ -394,7 +394,7 @@ function actualizarVaca() {
     .then(async (res) => {
       const resData = await res.json();
       if (!res.ok) throw new Error(resData.error || "Error al actualizar");
-      alert(resData.message || "Actualizado correctamente");
+
       cerrarModal();
       cargarGanado();
     })
@@ -538,7 +538,7 @@ async function asignarVacuna() {
     const resData = await res.json();
     if (!res.ok) throw new Error(resData.error || "Error");
 
-    alert(resData.message || "Vacuna asignada");
+
     document.getElementById("vac-select").value = "";
 
     // NUEVO: Refrescar la lista de vacunas del animal automáticamente
