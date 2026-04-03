@@ -54,28 +54,29 @@ La idea principal fue construir una base sólida de backend y base de datos rela
 ## Estructura del proyecto
 
 ```text
-ganado_project/
-├── frontend/
-│   ├── public/
-│   │   ├── index.html
-│   │   ├── login.html
-│   │   └── register.html
-│   ├── css/
-│   ├── js/
-│   └── assets/
-│
-├── backend/
-│   ├── app.py
+CattleAdmin/
+├── .vscode/
+├── Api/
+│   ├── index.py
 │   ├── controllers/
 │   ├── routes/
 │   ├── services/
+│   ├── static/
+│   ├── templates/
 │   ├── utils/
 │   ├── models/
 │   ├── db/ganado.db
-│   ├── requirements.txt
 │   
-│
-└── README.md
+├── docs/
+├── node_modules/
+├── venv/
+├── .env
+├── .gitignore
+├── package-lock.json
+├── package.json
+├── README.md
+├── requirements.txt
+└── vercel.json
 ```
 
 ## Funcionalidades implementadas
