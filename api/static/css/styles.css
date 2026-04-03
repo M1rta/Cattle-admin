@@ -232,15 +232,10 @@ select:focus {
   box-shadow:
     0 18px 40px rgba(87, 84, 83, 0.10),
     0 2px 0 rgba(255, 255, 255, 0.55) inset;
-  transition: var(--transition);
+ 
 }
 
-#map:hover {
-  transform: translateY(-4px);
-  box-shadow:
-    0 26px 54px rgba(87, 84, 83, 0.14),
-    0 2px 0 rgba(255, 255, 255, 0.55) inset;
-}
+
 
 #cria {
   color: red;
