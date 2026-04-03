@@ -220,7 +220,6 @@ select:focus {
   align-items: flex-start;
 }
 
-
 /* MAPA */
 #map {
   height: 600px;
@@ -808,9 +807,7 @@ button:active {
 input[readonly],
 select:disabled {
   background-color: #e8e4e1;
-  /* Gris claro / crema oscuro */
   color: #8a817c;
-  /* Texto grisáceo */
   cursor: not-allowed;
   border-color: rgba(87, 84, 83, 0.08);
   box-shadow: none;
@@ -819,7 +816,6 @@ select:disabled {
 input[readonly]:hover,
 select:disabled:hover {
   transform: none;
-  /* Quitamos la animación de saltito al pasar el mouse */
   border-color: rgba(87, 84, 83, 0.08);
 }
 
@@ -827,7 +823,6 @@ select:disabled:hover {
    UI MODERNA: INPUTS Y SELECTS
    ==================================== */
 
-/* 1. Desaparecer las flechitas por defecto de los inputs de número */
 input[type="number"]::-webkit-inner-spin-button,
 input[type="number"]::-webkit-outer-spin-button {
   -webkit-appearance: none;
@@ -837,10 +832,8 @@ input[type="number"]::-webkit-outer-spin-button {
 input[type="number"] {
   -moz-appearance: textfield;
   appearance: textfield;
-  /* Para Firefox */
 }
 
-/* 2. Grupo de botones modernos para la Edad [ - ] [ Número ] [ + ] */
 .modern-input-group {
   display: flex;
   align-items: center;
@@ -864,7 +857,6 @@ input[type="number"] {
   border-radius: 0;
   box-shadow: none;
   text-align: center;
-  /* Centramos el texto y el número */
   width: 100%;
   padding: 0;
 }
@@ -872,7 +864,6 @@ input[type="number"] {
 .modern-input-group input:focus {
   box-shadow: none;
   transform: none;
-  /* Evita que el número salte al darle click */
 }
 
 .btn-stepper {
@@ -896,17 +887,22 @@ input[type="number"] {
   box-shadow: none;
 }
 
-/* 3. Flecha personalizada y moderna para los Select */
 select {
   -webkit-appearance: none;
   -moz-appearance: none;
   appearance: none;
-  /* Ícono SVG de un "chevron" minimalista */
   background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%236e6763' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
   background-repeat: no-repeat;
   background-position: right 12px center;
   background-size: 16px;
   padding-right: 36px;
-  /* Espacio para que el texto no pise la flecha */
   cursor: pointer;
+}
+
+.leaflet-tile-container img, 
+.leaflet-tile {
+  margin: -0.5px !important;
+  padding: 0 !important;
+  border: none !important;
+  outline: none !important;
 }

@@ -155,7 +155,7 @@ function cambiarEdadEdit(paso) {
 
 /* ====== MAPA ====== */
 let map = L.map("map").setView([8.875710, -83.067468], 15);
-L.tileLayer("https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}", { maxZoom: 19, attribution: "Tiles © Esri" }).addTo(map);
+L.tileLayer("https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}", { maxZoom: 30, attribution: "Tiles © Esri" }).addTo(map);
 let markers = [];
 
 function mostrarEnMapa(ganado) {
@@ -344,7 +344,6 @@ function actualizarVaca() {
   .then(async (res) => {
       const resData = await res.json();
       if(!res.ok) throw new Error(resData.error || "Error al actualizar");
-      alert(resData.message || "Actualizado correctamente");
       cerrarModal();
       cargarGanado();
   })
