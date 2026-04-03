@@ -891,3 +891,15 @@ select {
   cursor: pointer;
 }
 
+.leaflet-tile-container img, 
+.leaflet-tile {
+  /* Escala las imágenes un 0.5% extra para forzar que se superpongan */
+  transform: scale(1.005) !important;
+  
+  /* Elimina cualquier rastro visual o suavizado de bordes del navegador */
+  -webkit-backface-visibility: hidden !important;
+  backface-visibility: hidden !important;
+  outline: 1px solid transparent !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
