@@ -229,9 +229,6 @@ select:focus {
   overflow: hidden;
   border: none;
   background: rgba(255, 255, 255, 0.55);
-  box-shadow:
-    0 18px 40px rgba(87, 84, 83, 0.10),
-    0 2px 0 rgba(255, 255, 255, 0.55) inset;
  
 }
 
@@ -894,10 +891,3 @@ select {
   cursor: pointer;
 }
 
-.leaflet-tile-container img, 
-.leaflet-tile {
-  margin: -0.5px !important;
-  padding: 0 !important;
-  border: none !important;
-  outline: none !important;
-}
