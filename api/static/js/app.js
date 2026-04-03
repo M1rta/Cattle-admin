@@ -374,11 +374,9 @@ function actualizarVaca() {
     nombre: document.getElementById("edit-nombre").value, // Bloqueado, pero se envía
     tipo: document.getElementById("edit-tipo").value,     // Bloqueado
     color: document.getElementById("edit-color").value,   // Bloqueado
-    finca_actual: document.getElementById("edit-finca").value, // Bloqueado
+    finca_actual: document.getElementById("edit-finca").value || 0, // Bloqueado
     edad: parseInt(document.getElementById("edit-edad").value) || 0, // ¡EDITABLE!
-    tiene_cria: parseInt(document.getElementById("edit-cria").value) || 0, // ¡EDITABLE!
-    lat: parseFloat(vacaEditando.lat), // Se queda en el mismo lugar
-    lng: parseFloat(vacaEditando.lng)  // Se queda en el mismo lugar
+    tiene_cria: parseInt(document.getElementById("edit-cria").value) || 0, // ¡EDITABLE! // Se queda en el mismo lugar
   };
 
   // Validaciones de seguridad
