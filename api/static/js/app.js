@@ -45,7 +45,6 @@ const fincas = {
 };
 
 /* ====== UI BINDING ====== */
-/* ====== UI BINDING ====== */
 function bindUI() {
   const tipo = document.getElementById("tipo");
   if (tipo) {
@@ -55,7 +54,7 @@ function bindUI() {
       const edadInput = document.getElementById("edad");
       if (tipo.value === "Vaca" || tipo.value === "Toro") {
         edadInput.min = "36";
-        // Si cambió a Vaca y tenía una edad menor escrita, la BORRAMOS
+        // Si cambió a Vaca/Toro y tenía una edad menor escrita o vacío, la BORRAMOS
         if (edadInput.value !== "" && parseInt(edadInput.value) < 36) {
           edadInput.value = "";
         }
@@ -102,11 +101,27 @@ function bindUI() {
   toggleCampoCriaEditar();
 }
 
-/* ====== FUNCIONES PARA BOTONES DE EDAD (AFUERA DE bindUI) ====== */
+function toggleCampoCria() {
+  const tipo = document.getElementById("tipo");
+  const contenedorCria = document.getElementById("contenedor-cria");
+  const cria = document.getElementById("cria");
+  if (!tipo || !contenedorCria || !cria) return;
+  contenedorCria.style.display = (tipo.value || "").toLowerCase() === "vaca" ? "block" : "none";
+}
+
+function toggleCampoCriaEditar() {
+  const tipo = document.getElementById("edit-tipo");
+  const contenedorCria = document.getElementById("contenedor-edit-cria");
+  const cria = document.getElementById("edit-cria");
+  if (!tipo || !contenedorCria || !cria) return;
+  contenedorCria.style.display = (tipo.value || "").toLowerCase() === "vaca" ? "block" : "none";
+}
+
+/* ====== FUNCIONES PARA BOTONES DE EDAD ====== */
 function cambiarEdad(paso) {
   const input = document.getElementById("edad");
-  if (!input) return;
-
+  if (!input) return; 
+  
   const tipo = document.getElementById("tipo") ? document.getElementById("tipo").value : "";
   const min = (tipo === "Vaca" || tipo === "Toro") ? 36 : 0;
 
@@ -124,8 +139,8 @@ function cambiarEdad(paso) {
 
 function cambiarEdadEdit(paso) {
   const input = document.getElementById("edit-edad");
-  if (!input) return;
-
+  if (!input) return; 
+  
   const tipo = document.getElementById("edit-tipo") ? document.getElementById("edit-tipo").value : "";
   const min = (tipo === "Vaca" || tipo === "Toro") ? 36 : 0;
 
@@ -139,62 +154,6 @@ function cambiarEdadEdit(paso) {
 
   if (actual < min) actual = min;
   input.value = actual;
-}
-
-// Para la ventana modal (Editar Ganado)
-function cambiarEdadEdit(paso) {
-  const input = document.getElementById("edit-edad");
-  if (!input) return;
-
-  const tipo = document.getElementById("edit-tipo") ? document.getElementById("edit-tipo").value : "";
-  const min = (tipo === "Vaca" || tipo === "Toro") ? 36 : 0;
-
-  let actual = parseInt(input.value);
-
-  if (isNaN(actual)) {
-    actual = (min === 36) ? 36 : (paso > 0 ? 1 : 0);
-  } else {
-    actual += paso;
-  }
-
-  if (actual < min) actual = min;
-
-  input.value = actual;
-}
-
-const editTipo = document.getElementById("edit-tipo");
-if (editTipo) editTipo.addEventListener("change", toggleCampoCriaEditar);
-
-const btnAsignar = document.getElementById("btn-asignar-vacuna");
-if (btnAsignar) {
-  btnAsignar.type = "button";
-  btnAsignar.onclick = asignarVacuna;
-}
-
-const btnCancelar = document.getElementById("btn-cancelar");
-if (btnCancelar) btnCancelar.onclick = cerrarModal;
-
-const btnActualizar = document.getElementById("btn-actualizar");
-if (btnActualizar) btnActualizar.onclick = actualizarVaca;
-
-toggleCampoCria();
-toggleCampoCriaEditar();
-
-
-function toggleCampoCria() {
-  const tipo = document.getElementById("tipo");
-  const contenedorCria = document.getElementById("contenedor-cria");
-  const cria = document.getElementById("cria");
-  if (!tipo || !contenedorCria || !cria) return;
-  contenedorCria.style.display = (tipo.value || "").toLowerCase() === "vaca" ? "block" : "none";
-}
-
-function toggleCampoCriaEditar() {
-  const tipo = document.getElementById("edit-tipo");
-  const contenedorCria = document.getElementById("contenedor-edit-cria");
-  const cria = document.getElementById("edit-cria");
-  if (!tipo || !contenedorCria || !cria) return;
-  contenedorCria.style.display = (tipo.value || "").toLowerCase() === "vaca" ? "block" : "none";
 }
 
 /* ====== MAPA ====== */
@@ -205,26 +164,21 @@ let markers = [];
 function mostrarEnMapa(ganado) {
   markers.forEach((m) => map.removeLayer(m));
   markers = [];
-
-  // Si tu Python devuelve un objeto, extraemos la lista
+  
   const lista = Array.isArray(ganado) ? ganado : (ganado.ganado || []);
 
   lista.forEach((vaca) => {
-    // Si no hay lat o lng, no puede poner el signo de ubicación
     if (!vaca.lat || !vaca.lng) return;
 
     const marker = L.marker([vaca.lat, vaca.lng]).addTo(map);
-
-    // --- LÓGICA INTELIGENTE PARA LA CRÍA ---
-    let infoCria = "";
+    
+    // Lógica inteligente para mostrar "Cría" solo si es Vaca
+    let infoCria = ""; 
     if (vaca.tipo === "Vaca") {
-      // Convertimos el 0 o 1 en palabras bonitas
       const textoCria = (vaca.tiene_cria === 1 || vaca.tiene_cria === "1") ? "Sí" : "No";
       infoCria = `<b>Cría:</b> ${textoCria}<br>`;
     }
-    // ---------------------------------------
 
-    // Insertamos la variable ${infoCria} justo arriba del botón
     marker.bindPopup(`
       <div style="text-align: center;">
         <b style="font-size: 15px; color: var(--charcoal);">${vaca.nombre}</b><br>
@@ -237,7 +191,6 @@ function mostrarEnMapa(ganado) {
       <br>
       <button type="button" style="width: 100%;" onclick='abrirModal(${JSON.stringify(vaca)})'>Editar</button>
     `);
-
     markers.push(marker);
   });
 }
@@ -257,7 +210,6 @@ function cargarGanado() {
   apiFetch(`${API}/ganado`)
     .then((res) => res.json())
     .then((data) => {
-      // Tu Python devuelve una lista directamente o un objeto con la lista
       window.ganadoGlobal = Array.isArray(data) ? data : data.ganado || [];
       mostrarEnMapa(window.ganadoGlobal);
       actualizarContadoresPanel();
@@ -265,7 +217,7 @@ function cargarGanado() {
     .catch(err => console.error("Error cargando ganado:", err));
 }
 
-/* ====== AGREGAR GANADO (Ajustado a ganado_service.py) ====== */
+/* ====== AGREGAR GANADO ====== */
 function agregarGanado() {
   const finca = (document.getElementById("finca").value || "").toUpperCase();
   const tipo = document.getElementById("tipo").value;
@@ -280,14 +232,18 @@ function agregarGanado() {
     nombre: nombre,
     tipo: tipo,
     color: color,
-    edad: parseInt(edad) || 0, // Asegura que sea número
+    edad: parseInt(edad), // Será NaN si está vacío, lo atrapamos abajo
     tiene_cria: parseInt(criaValue) || 0,
     finca_actual: finca,
     lat: parseFloat(punto.lat),
-    lng: parseFloat(punto.lng)
+    lng: parseFloat(punto.lng)  
   };
 
-  // ----- ESTO ES LO QUE TE FALTÓ PEGAR -----
+  // Validaciones para evitar el Error 400 de Python
+  if (!data.nombre || !data.tipo || !data.color || isNaN(data.edad) || !data.finca_actual) {
+    return alert("Faltan campos obligatorios o la edad no es válida.");
+  }
+
   // Validaciones de edad estrictas
   if (data.edad < 0) {
     return alert("La edad no puede ser menor a 0 meses.");
@@ -295,35 +251,28 @@ function agregarGanado() {
   if ((data.tipo === "Vaca" || data.tipo === "Toro") && data.edad < 36) {
     return alert("Atención: Las Vacas y Toros deben tener al menos 36 meses (3 años).");
   }
-  // -----------------------------------------
-
-  // Validaciones para evitar el Error 400 de tu Python
-  if (!data.nombre || !data.tipo || !data.color || isNaN(data.edad) || !data.finca_actual) {
-    return alert("Faltan campos obligatorios");
-  }
 
   apiFetch(`${API}/ganado`, {
     method: "POST",
     body: JSON.stringify(data)
   })
-    .then(async (res) => {
+  .then(async (res) => {
       const resData = await res.json();
-      if (!res.ok) throw new Error(resData.error || "Error al guardar");
+      if(!res.ok) throw new Error(resData.error || "Error al guardar");
       return resData;
-    })
-    .then((resData) => {
-      limpiarFormulario();
-      cargarGanado();
-      
-    })
-    .catch(err => alert("Error: " + err.message));
+  })
+  .then((resData) => {
+    limpiarFormulario();
+    cargarGanado();
+    alert(resData.message || "Ganado guardado correctamente");
+  })
+  .catch(err => alert("Error: " + err.message));
 }
 
 function limpiarFormulario() {
-
   ["nombre", "edad", "color", "cria"].forEach((id) => {
-    const el = document.getElementById(id);
-    if (el) el.value = "";
+      const el = document.getElementById(id);
+      if(el) el.value = "";
   });
 
   const selectTipo = document.getElementById("tipo");
@@ -335,15 +284,15 @@ function limpiarFormulario() {
   toggleCampoCria();
 }
 
-/* ====== ELIMINAR (Ajustado a g.id) ====== */
+/* ====== ELIMINAR ====== */
 function eliminarGanado(id) {
-  if (!confirm("¿Seguro que quieres eliminar este animal?")) return;
+  if(!confirm("¿Seguro que quieres eliminar este animal?")) return;
   apiFetch(`${API}/ganado/${id}`, { method: "DELETE" })
     .then(async (res) => {
-      const resData = await res.json();
-      if (!res.ok) throw new Error(resData.error || "No se pudo eliminar");
-
-      cargarGanado();
+        const resData = await res.json();
+        if(!res.ok) throw new Error(resData.error || "No se pudo eliminar");
+        alert(resData.message || "Eliminado");
+        cargarGanado();
     })
     .catch(err => alert(err.message));
 }
@@ -368,21 +317,20 @@ function cerrarModal() {
 
 function actualizarVaca() {
   if (!vacaEditando) return;
-  const id = vacaEditando.id;
+  const id = vacaEditando.id; 
 
   const data = {
-    nombre: document.getElementById("edit-nombre").value, // Bloqueado, pero se envía
-    tipo: document.getElementById("edit-tipo").value,     // Bloqueado
-    color: document.getElementById("edit-color").value,   // Bloqueado
-    finca_actual: document.getElementById("edit-finca").value, // Bloqueado
-    edad: parseInt(document.getElementById("edit-edad").value) || 0, // ¡EDITABLE!
-    tiene_cria: parseInt(document.getElementById("edit-cria").value) || 0, // ¡EDITABLE!
-    lat: parseFloat(vacaEditando.lat), // Se queda en el mismo lugar
-    lng: parseFloat(vacaEditando.lng)  // Se queda en el mismo lugar
+    nombre: document.getElementById("edit-nombre").value,
+    tipo: document.getElementById("edit-tipo").value,
+    color: document.getElementById("edit-color").value,
+    finca_actual: document.getElementById("edit-finca").value,
+    edad: parseInt(document.getElementById("edit-edad").value),
+    tiene_cria: parseInt(document.getElementById("edit-cria").value) || 0,
+    lat: parseFloat(vacaEditando.lat), 
+    lng: parseFloat(vacaEditando.lng)  
   };
 
-  // Validaciones de seguridad
-  if (data.edad < 0) return alert("La edad no puede ser menor a 0");
+  if (isNaN(data.edad) || data.edad < 0) return alert("La edad no es válida o es menor a 0.");
   if ((data.tipo === "Vaca" || data.tipo === "Toro") && data.edad < 36) {
     return alert("Las Vacas y Toros deben tener al menos 36 meses.");
   }
@@ -391,15 +339,16 @@ function actualizarVaca() {
     method: "PUT",
     body: JSON.stringify(data)
   })
-    .then(async (res) => {
+  .then(async (res) => {
       const resData = await res.json();
-      if (!res.ok) throw new Error(resData.error || "Error al actualizar");
-
+      if(!res.ok) throw new Error(resData.error || "Error al actualizar");
+      alert(resData.message || "Actualizado correctamente");
       cerrarModal();
       cargarGanado();
-    })
-    .catch(err => alert(err.message));
+  })
+  .catch(err => alert(err.message));
 }
+
 /* ====== PANEL LATERAL ====== */
 function abrirPanel() {
   document.getElementById("panel-ganado").classList.remove("hidden");
@@ -420,8 +369,7 @@ function volverResumen() {
 function actualizarContadoresPanel() {
   const data = window.ganadoGlobal || [];
   const totalEl = document.getElementById("count-total");
-  if (totalEl) totalEl.innerText = data.length;
-  // Puedes agregar más contadores aquí filtrando data
+  if(totalEl) totalEl.innerText = data.length;
 }
 
 function abrirListaGanado() {
@@ -432,7 +380,7 @@ function abrirListaGanado() {
 
 function renderListaPanel(items) {
   const cont = document.getElementById("lista-panel-ganado");
-  if (!cont) return;
+  if(!cont) return;
   cont.innerHTML = "";
   items.forEach((g) => {
     const div = document.createElement("div");
@@ -458,21 +406,22 @@ function abrirVacunas() {
 
 function llenarSelectAnimalesVacunas() {
   const sel = document.getElementById("vac-animal");
-  if (!sel) return;
+  if(!sel) return;
   sel.innerHTML = `<option value="">Seleccione un animal</option>`;
-
+  
   (window.ganadoGlobal || []).forEach((g) => {
     sel.innerHTML += `<option value="${g.id}">${g.nombre}</option>`;
   });
 
-  // NUEVO: Escuchar cuando el usuario elige un animal para cargar sus vacunas
-  sel.onchange = function () {
+  // Escuchar cuando el usuario elige un animal
+  sel.onchange = function() {
     cargarVacunasAsignadas(this.value);
   };
 }
+
 function cargarVacunasAsignadas(animalId) {
   const contenedor = document.getElementById("vac-asignadas");
-
+  
   if (!animalId) {
     contenedor.innerHTML = "";
     return;
@@ -483,9 +432,8 @@ function cargarVacunasAsignadas(animalId) {
   apiFetch(`${API}/ganado/${animalId}/vacunas`)
     .then(res => res.json())
     .then(data => {
-      // Tu backend devuelve una lista directa
       const vacunas = Array.isArray(data) ? data : (data.vacunas || []);
-
+      
       if (vacunas.length === 0) {
         contenedor.innerHTML = "<span style='font-size:12px; color:gray;'>No tiene vacunas asignadas.</span>";
         return;
@@ -497,8 +445,7 @@ function cargarVacunasAsignadas(animalId) {
         div.style.padding = "8px 0";
         div.style.borderBottom = "1px solid #eee";
         div.style.fontSize = "13px";
-
-        // v.nombre y v.descripcion vienen del JOIN manual que hicimos en Python
+        
         div.innerHTML = `
           <b>${v.nombre}</b> - <span style="color:var(--camel);">${v.fecha}</span><br>
           <span style="font-size:11px; color:gray;">${v.descripcion || ''}</span>
@@ -517,7 +464,7 @@ function cargarCatalogoVacunas() {
     .then(res => res.json())
     .then(vacs => {
       const sel = document.getElementById("vac-select");
-      if (!sel) return;
+      if(!sel) return;
       sel.innerHTML = `<option value="">Seleccione vacuna</option>`;
       vacs.forEach(v => sel.innerHTML += `<option value="${v.id}">${v.nombre}</option>`);
     });
@@ -536,12 +483,11 @@ async function asignarVacuna() {
       body: JSON.stringify({ vacuna_ids: [vacunaId], fecha })
     });
     const resData = await res.json();
-    if (!res.ok) throw new Error(resData.error || "Error");
-
-
+    if(!res.ok) throw new Error(resData.error || "Error");
+    
+    alert(resData.message || "Vacuna asignada");
     document.getElementById("vac-select").value = "";
-
-    // NUEVO: Refrescar la lista de vacunas del animal automáticamente
+    
     cargarVacunasAsignadas(animalId);
 
   } catch (err) {
