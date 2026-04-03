@@ -234,6 +234,7 @@ function mostrarEnMapa(ganado) {
       <b>Edad:</b> ${vaca.edad} meses<br>
       <b>Finca:</b> ${vaca.finca_actual}<br>
       ${infoCria}
+      <br>
       <button type="button" style="width: 100%;" onclick='abrirModal(${JSON.stringify(vaca)})'>Editar</button>
     `);
 
@@ -373,7 +374,7 @@ function actualizarVaca() {
     nombre: document.getElementById("edit-nombre").value, // Bloqueado, pero se envía
     tipo: document.getElementById("edit-tipo").value,     // Bloqueado
     color: document.getElementById("edit-color").value,   // Bloqueado
-    finca_actual: parseInt(document.getElementById("edit-finca").value) || 0,// ¡EDITABLE!
+    finca_actual: document.getElementById("edit-finca").value, // Bloqueado
     edad: parseInt(document.getElementById("edit-edad").value) || 0, // ¡EDITABLE!
     tiene_cria: parseInt(document.getElementById("edit-cria").value) || 0, // ¡EDITABLE!
     lat: parseFloat(vacaEditando.lat), // Se queda en el mismo lugar
