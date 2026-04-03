@@ -332,7 +332,7 @@ function actualizarVaca() {
     color: document.getElementById("edit-color").value,
     edad: parseInt(document.getElementById("edit-edad").value) || 0,
     tiene_cria: parseInt(document.getElementById("edit-cria").value) || 0,
-    finca_actual: nuevaFinca,
+    finca_actual: nuevaFinca(document.getElementById("edit-finca").value) || 0,
     lat: parseFloat(lat), 
     lng: parseFloat(lng) 
   };
