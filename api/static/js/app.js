@@ -234,7 +234,6 @@ function mostrarEnMapa(ganado) {
       <b>Edad:</b> ${vaca.edad} meses<br>
       <b>Finca:</b> ${vaca.finca_actual}<br>
       ${infoCria}
-      <br>
       <button type="button" style="width: 100%;" onclick='abrirModal(${JSON.stringify(vaca)})'>Editar</button>
     `);
 
