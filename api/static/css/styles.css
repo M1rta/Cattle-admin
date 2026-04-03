@@ -228,7 +228,6 @@ select:focus {
   border-radius: 20px;
   overflow: hidden;
   border: none;
-  background: rgba(255, 255, 255, 0.55);
  
 }
 
@@ -893,13 +892,8 @@ select {
 
 .leaflet-tile-container img, 
 .leaflet-tile {
-  /* Escala las imágenes un 0.5% extra para forzar que se superpongan */
-  transform: scale(1.005) !important;
-  
-  /* Elimina cualquier rastro visual o suavizado de bordes del navegador */
-  -webkit-backface-visibility: hidden !important;
-  backface-visibility: hidden !important;
-  outline: 1px solid transparent !important;
-  margin: 0 !important;
+  margin: -0.5px !important;
   padding: 0 !important;
+  border: none !important;
+  outline: none !important;
 }
