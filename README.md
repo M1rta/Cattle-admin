@@ -40,13 +40,13 @@ La idea principal fue construir una base sólida de backend y base de datos rela
 - Python
 - Flask
 - Flask-CORS
-- SQLite
+- MongoDB
 - python-dotenv
 
 ### Herramientas
 - Git / GitHub
 - VS Code
-- DB Browser for SQLite
+- MongoDB Atlas
 - Postman
 
 ---
@@ -151,5 +151,4 @@ Este proyecto no solo busca resolver una necesidad funcional, sino también refl
 
 ## Autor
 
-**Esteban Elizondo Araya**  
-Estudiante de Ingeniería en Sistemas con interés en desarrollo backend, automatización, soporte técnico e infraestructura.
+**WalterEsteban Elizondo Araya**  
