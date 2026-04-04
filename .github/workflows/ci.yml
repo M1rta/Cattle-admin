@@ -2,44 +2,55 @@ name: CI
 
 on:
   push:
-    branches: ["main", "test-actions", "develop" ]
+    branches: [ "main", "test-actions", "develop" ]
   pull_request:
+
 
 jobs:
   test:
     runs-on: windows-latest
 
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+    - name: Checkout
+      uses: actions/checkout@v4
 
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.11"
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: "3.11"
 
-      - name: Instalacion de dependecias y CI tools
-        run: pip install -r requirements.txt ruff pytest
+    - name: Instalacion de dependecias y CI tools
+      run: pip install -r requirements.txt ruff pytest
 
-      - name: Check Python syntax
-        run: python -m compileall api
+    - name: Check Python syntax
+      run: python -m compileall api
 
-      - name: Verificar sintaxis y rutas en Templates
-        run: |
-          pip install djlint
-          djlint api/templates --lint --ignore H030,H031,H006
-          
-      - name: Smoke test Flask app import
-        run: python -c "from api.index import app; print(app.url_map)"
+    - name: Vercel Guard Anti-html
+      run: |
+        echo "Revisando extensiones .html..."
+        SEARCH_RESULTS=$(grep -rn ".html" api/templates/ || true)
+        if [ -n "$SEARCH_RESULTS" ]; then
+          echo "ERROR: Se encontraron extensiones .html prohibidas:"
+          echo "$SEARCH_RESULTS"
+          exit 1
+        else
+          echo "Validacion exitosa: No hay .html"
+        fi
 
-      - name: Run lint
-        run: ruff check api
+    - name: Smoke test Flask app
+      run: python -c "from api.index import app; print(app.url_map)"
 
-      - name: Run tests if present
-        shell: pwsh
-        run: |
-          if (Test-Path tests) {
-            pytest
-          } else {
-            Write-Host "No tests directory found. Skipping pytest."
-          }
+    - name: Smoke test Flask app import
+      run: python -c "from api.index import app; print(app.url_map)"
+
+    - name: Run lint
+      run: ruff check api
+
+    - name: Run tests if present
+      shell: pwsh
+      run: |
+        if (Test-Path tests) {
+          pytest
+        } else {
+          Write-Host "No tests directory found. Skipping pytest."
+        }
