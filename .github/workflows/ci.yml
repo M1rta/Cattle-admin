@@ -18,12 +18,17 @@ jobs:
         with:
           python-version: "3.11"
 
-      - name: Install dependencies and CI tools
+      - name: Instalacion de dependecias y CI tools
         run: pip install -r requirements.txt ruff pytest
 
       - name: Check Python syntax
         run: python -m compileall api
 
+      - name: Verificar sintaxis y rutas en Templates
+        run: |
+          pip install djlint
+          djlint api/templates --check  
+          
       - name: Smoke test Flask app import
         run: python -c "from api.index import app; print(app.url_map)"
 
