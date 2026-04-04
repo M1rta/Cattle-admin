@@ -1,6 +1,9 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
+  <meta name="description" content="Sistema de administración ganadera">
+  <meta name="keywords" content="ganado, administración, costa rica">
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Registro | Gestor de Ganado</title>
@@ -8,6 +11,7 @@
   <!-- ✅ IMPORTANTE: el navegador NO lee .scss, tiene que ser .css compilado -->
   <link rel="stylesheet" href="/static/css/register.css" />
 </head>
+
 <body>
 
   <main class="register-container">
@@ -17,43 +21,20 @@
 
       <form id="register-form" autocomplete="on">
         <div class="input-group">
-          <input
-            type="text"
-            id="register-name"
-            placeholder="Nombre"
-            aria-label="Nombre"
-            required
-          />
+          <input type="text" id="register-name" placeholder="Nombre" aria-label="Nombre" required />
         </div>
 
         <div class="input-group">
-          <input
-            type="email"
-            id="register-email"
-            placeholder="Correo"
-            aria-label="Correo"
-            required
-          />
+          <input type="email" id="register-email" placeholder="Correo" aria-label="Correo" required />
         </div>
 
         <div class="input-group">
-          <input
-            type="password"
-            id="register-password"
-            placeholder="Contraseña"
-            aria-label="Contraseña"
-            required
-          />
+          <input type="password" id="register-password" placeholder="Contraseña" aria-label="Contraseña" required />
         </div>
 
         <div class="input-group">
-          <input
-            type="password"
-            id="register-password2"
-            placeholder="Confirmar contraseña"
-            aria-label="Confirmar contraseña"
-            required
-          />
+          <input type="password" id="register-password2" placeholder="Confirmar contraseña"
+            aria-label="Confirmar contraseña" required />
         </div>
 
         <!-- ✅ type="submit" para que Enter funcione -->
@@ -68,4 +49,5 @@
 
   <script src="{{ url_for('static', filename='js/register.js') }}"></script>
 </body>
+
 </html>
