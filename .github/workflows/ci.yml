@@ -18,21 +18,23 @@ jobs:
         with:
           python-version: "3.11"
 
-      - name: Install dependencies
-        run: pip install -r requirements.txt
+      - name: Install dependencies and CI tools
+        run: pip install -r requirements.txt ruff pytest
 
       - name: Check Python syntax
         run: python -m compileall api
 
       - name: Smoke test Flask app import
         run: python -c "from api.index import app; print(app.url_map)"
-      - name: Install lint tool
-        run: pip install ruff
 
       - name: Run lint
         run: ruff check api
-      - name: Install test dependencies
-        run: pip install pytest
 
-      - name: Run tests
-        run: pytest
+      - name: Run tests if present
+        shell: pwsh
+        run: |
+          if (Test-Path tests) {
+            pytest
+          } else {
+            Write-Host "No tests directory found. Skipping pytest."
+          }

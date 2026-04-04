@@ -134,7 +134,7 @@ def animal_pertenece_a_usuario(user_id, ganado_id) -> bool:
     try:
         ok = db.ganado.find_one({"_id": ObjectId(ganado_id), "user_id": user_id})
         return ok is not None
-    except:
+    except (TypeError, ValueError):
         return False
 
 

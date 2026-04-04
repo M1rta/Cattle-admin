@@ -37,7 +37,7 @@ def register():
             "password_hash": password_hash
         }
         
-        resultado = db.users.insert_one(nuevo_usuario)
+        db.users.insert_one(nuevo_usuario)
 
         # Intentamos enviar el correo
         try:
