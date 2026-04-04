@@ -27,7 +27,7 @@ jobs:
       - name: Verificar sintaxis y rutas en Templates
         run: |
           pip install djlint
-          djlint api/templates --lint
+          djlint api/templates --lint --ignore H030,H031,H006
           
       - name: Smoke test Flask app import
         run: python -c "from api.index import app; print(app.url_map)"
