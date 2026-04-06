@@ -27,7 +27,7 @@ jobs:
     - name: Check Python syntax
       run: python -m compileall api
 
-    - name: 🛡️ Vercel Guard (Regla Anti-.html)
+    - name: Busqueda de .html no permitido por vercel
       shell: pwsh
       run: |
         $files = Get-ChildItem -Path "api/templates" -Filter *.html -Recurse
